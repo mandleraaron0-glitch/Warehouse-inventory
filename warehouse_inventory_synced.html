@@ -1,0 +1,735 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); font-size: 14px; color: var(--color-text-primary); }
+  .app { padding: 12px; }
+  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--color-border-secondary); margin-bottom: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .tab-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tab { padding: 8px 14px; font-size: 13px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab.active-s1 { color: #185FA5; border-bottom: 2px solid #185FA5; }
+  .tab.active-s11 { color: #3B6D11; border-bottom: 2px solid #3B6D11; }
+  .tab.active-orders { color: #854F0B; border-bottom: 2px solid #854F0B; }
+  .tab.active-prev { color: #533BAB; border-bottom: 2px solid #533BAB; }
+  .tab.active-admin { color: #185FA5; border-bottom: 2px solid #185FA5; }
+  .tab:hover:not(.active-s1):not(.active-s11):not(.active-orders):not(.active-prev):not(.active-admin) { color: var(--color-text-primary); }
+  .btn-manage-users { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: none; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1px; }
+  .btn-manage-users:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; font-weight: 500; font-size: 12px; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-secondary); white-space: nowrap; user-select: none; }
+  th.sortable { cursor: pointer; }
+  th.sortable:hover { color: var(--color-text-primary); }
+  th.sort-asc, th.sort-desc { color: var(--color-text-primary); }
+  td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-stocked { background: #EAF3DE; color: #3B6D11; }
+  .badge-order { background: #FCEBEB; color: #A32D2D; }
+  .badge-low { background: #FAEEDA; color: #854F0B; }
+  .badge-s1 { background: #E6F1FB; color: #185FA5; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; display: inline-block; white-space: nowrap; }
+  .badge-s11 { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; display: inline-block; white-space: nowrap; }
+  .role-badge { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 500; }
+  .role-vst { background: #F1EFE8; color: #5F5E5A; }
+  .role-lvst { background: #E6F1FB; color: #185FA5; }
+  .role-ss { background: #FAEEDA; color: #854F0B; }
+  .role-fs { background: #FCEBEB; color: #A32D2D; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 16px; }
+  .card-s1 { border-left: 3px solid #185FA5; }
+  .card-s11 { border-left: 3px solid #3B6D11; }
+  .card-orders { border-left: 3px solid #854F0B; }
+  .card-receive { border-left: 3px solid #3B6D11; }
+  .card-prev { border-left: 3px solid #533BAB; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .table-title { font-size: 15px; font-weight: 500; }
+  .title-s1 { color: #185FA5; }
+  .title-s11 { color: #3B6D11; }
+  .title-orders { color: #854F0B; }
+  .title-receive { color: #3B6D11; }
+  .title-prev { color: #533BAB; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .btn:hover { background: var(--color-background-secondary); }
+  .btn-primary { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .btn-primary:hover { background: #0C447C; }
+  .btn-green { background: #3B6D11; color: #fff; border-color: #3B6D11; }
+  .btn-green:hover { background: #27500A; }
+  .btn-red { background: #A32D2D; color: #fff; border-color: #A32D2D; }
+  .btn-red:hover { background: #791F1F; }
+  .btn-amber { background: #854F0B; color: #fff; border-color: #854F0B; }
+  .btn-amber:hover { background: #633806; }
+  .btn-sm { padding: 4px 8px; font-size: 12px; }
+  .btn-danger { color: #A32D2D; border: 0.5px solid transparent; background: none; padding: 3px 8px; font-size: 12px; cursor: pointer; border-radius: var(--border-radius-md); font-weight: 500; font-family: var(--font-sans); }
+  .btn-danger:hover { background: #FCEBEB; border-color: #F09595; }
+  .btn-edit-row { color: #185FA5; border: 0.5px solid transparent; background: none; padding: 3px 8px; font-size: 12px; cursor: pointer; border-radius: var(--border-radius-md); font-weight: 500; font-family: var(--font-sans); }
+  .btn-edit-row:hover { background: #E6F1FB; border-color: #85B7EB; }
+  .btn-edit-user { color: #185FA5; border: 0.5px solid transparent; background: none; padding: 3px 8px; font-size: 12px; cursor: pointer; border-radius: var(--border-radius-md); font-weight: 500; font-family: var(--font-sans); }
+  .btn-edit-user:hover { background: #E6F1FB; border-color: #85B7EB; }
+  .btn-inventory { background: #185FA5; color: #fff; padding: 4px 10px; font-size: 12px; border-radius: var(--border-radius-md); border: none; cursor: pointer; font-weight: 500; }
+  .btn-inventory:hover { background: #0C447C; }
+  .btn-place-order { background: #854F0B; color: #fff; padding: 5px 12px; font-size: 12px; border-radius: var(--border-radius-md); border: none; cursor: pointer; font-weight: 500; font-family: var(--font-sans); white-space: nowrap; }
+  .btn-place-order:hover { background: #633806; }
+  .btn-confirm-receipt { background: #3B6D11; color: #fff; padding: 5px 12px; font-size: 12px; border-radius: var(--border-radius-md); border: none; cursor: pointer; font-weight: 500; font-family: var(--font-sans); white-space: nowrap; }
+  .btn-confirm-receipt:hover { background: #27500A; }
+  .btn-add-item-s1 { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: var(--border-radius-md); border: 0.5px solid #85B7EB; background: #E6F1FB; cursor: pointer; color: #185FA5; font-size: 12px; font-weight: 500; font-family: var(--font-sans); white-space: nowrap; }
+  .btn-add-item-s1:hover { background: #B5D4F4; border-color: #378ADD; }
+  .btn-add-item-s11 { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: var(--border-radius-md); border: 0.5px solid #97C459; background: #EAF3DE; cursor: pointer; color: #3B6D11; font-size: 12px; font-weight: 500; font-family: var(--font-sans); white-space: nowrap; }
+  .btn-add-item-s11:hover { background: #C0DD97; border-color: #639922; }
+  .btn-add-plus { font-size: 15px; line-height: 1; }
+  .action-cell { display: flex; gap: 4px; align-items: center; white-space: nowrap; }
+  input[type=text], input[type=number], input[type=date], input[type=password], select { font-family: var(--font-sans); font-size: 13px; color: var(--color-text-primary); background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 5px 8px; }
+  input:focus, select:focus { outline: none; border-color: #185FA5; }
+  input[type=date] { padding: 4px 6px; font-size: 12px; }
+  input.input-error { border-color: #E24B4A; background: #FFF5F5; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.38); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 24px; width: 460px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal-sm { width: 360px; }
+  .modal-md { width: 390px; }
+  .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 18px; }
+  .form-row { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 5px; display: block; font-weight: 500; }
+  .form-label .required-star { color: #E24B4A; margin-left: 2px; }
+  .form-label .optional-tag { font-weight: 400; color: var(--color-text-secondary); font-style: italic; margin-left: 4px; font-size: 11px; }
+  .form-input { width: 100%; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 16px; }
+  .modal-divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 16px 0; }
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .stat-card { border-radius: var(--border-radius-md); padding: 12px; cursor: pointer; transition: transform 0.1s; }
+  .stat-card:hover { transform: translateY(-1px); }
+  .stat-card.nc { cursor: default; }
+  .stat-card.nc:hover { transform: none; }
+  .stat-card:active:not(.nc) { transform: scale(0.98); }
+  .stat-card.active-filter { outline: 2px solid currentColor; outline-offset: 1px; }
+  .stat-card-s1 { background: #E6F1FB; }
+  .stat-card-s11 { background: #EAF3DE; }
+  .stat-card-orders { background: #FAEEDA; }
+  .stat-card-prev { background: #EEEDFE; }
+  .stat-label { font-size: 11px; margin-bottom: 4px; }
+  .stat-label-s1 { color: #185FA5; }
+  .stat-label-s11 { color: #3B6D11; }
+  .stat-label-orders { color: #854F0B; }
+  .stat-label-prev { color: #533BAB; }
+  .stat-val { font-size: 20px; font-weight: 500; }
+  .stat-hint { font-size: 10px; margin-top: 4px; opacity: 0.6; }
+  .section-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+  .pkg-badge { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 11px; background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .th-inner { display: flex; align-items: center; gap: 3px; }
+  .sort-arrows { display: flex; flex-direction: column; margin-left: 2px; }
+  .arr { width: 0; height: 0; border-left: 3px solid transparent; border-right: 3px solid transparent; opacity: 0.2; }
+  .arr-up { border-bottom: 4px solid currentColor; margin-bottom: 1px; }
+  .arr-dn { border-top: 4px solid currentColor; }
+  th.sort-asc .arr-up { opacity: 1; }
+  th.sort-desc .arr-dn { opacity: 1; }
+  .search-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  .search-input { flex: 1; min-width: 140px; max-width: 260px; }
+  .search-label { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+  .legend-row { display: flex; gap: 12px; margin-bottom: 10px; font-size: 12px; align-items: center; flex-wrap: wrap; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; margin-left: 8px; }
+  .filter-chip-s1 { background: #E6F1FB; color: #185FA5; }
+  .filter-chip-s11 { background: #EAF3DE; color: #3B6D11; }
+  .filter-chip-clear { background: none; border: none; cursor: pointer; font-size: 13px; line-height: 1; padding: 0; margin-left: 2px; opacity: 0.6; }
+  .filter-chip-clear:hover { opacity: 1; }
+  .inv-confirm-summary { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; margin-bottom: 16px; font-size: 12px; }
+  .inv-confirm-summary-row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .inv-confirm-summary-label { color: var(--color-text-secondary); }
+  .inv-confirm-summary-val { font-weight: 500; }
+  .modal-item-name { font-size: 13px; font-weight: 500; margin-bottom: 16px; padding: 8px 12px; border-radius: var(--border-radius-md); display: flex; align-items: center; gap: 8px; }
+  .modal-item-blue { background: #E6F1FB; color: #185FA5; }
+  .modal-item-amber { background: #FAEEDA; color: #854F0B; }
+  .modal-item-green { background: #EAF3DE; color: #3B6D11; }
+  .inv-confirm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .user-row { display: flex; align-items: center; gap: 6px; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .user-row:last-child { border-bottom: none; }
+  .user-name { flex: 1; font-size: 13px; font-weight: 500; min-width: 0; }
+  .perm-pills { display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; }
+  .perm-pill { font-size: 10px; padding: 1px 6px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .perm-pill-yes { background: #EAF3DE; color: #3B6D11; }
+  .user-actions { display: flex; gap: 2px; flex-shrink: 0; }
+  .role-note { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 14px; padding: 8px 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); line-height: 1.6; }
+  .remove-target-card { background: #FFF5F5; border: 0.5px solid #F7C1C1; border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
+  .remove-target-avatar { width: 38px; height: 38px; border-radius: 50%; background: #FCEBEB; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: #A32D2D; flex-shrink: 0; }
+  .remove-target-info { flex: 1; }
+  .remove-target-name { font-size: 14px; font-weight: 500; color: #A32D2D; }
+  .remove-target-role { font-size: 12px; color: var(--color-text-secondary); margin-top: 1px; }
+  .edit-target-card { background: #EEF5FC; border: 0.5px solid #85B7EB; border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
+  .edit-target-avatar { width: 38px; height: 38px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: #185FA5; flex-shrink: 0; }
+  .edit-target-info { flex: 1; }
+  .edit-target-label { font-size: 11px; color: var(--color-text-secondary); }
+  .edit-target-val { font-size: 13px; font-weight: 500; }
+  .warning-box { background: #FAEEDA; border: 0.5px solid #FAC775; border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 12px; color: #854F0B; margin-bottom: 18px; line-height: 1.5; }
+  .approval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .no-sup-msg { font-size: 12px; color: #A32D2D; padding: 8px; background: #FCEBEB; border-radius: var(--border-radius-md); }
+  .role-change-arrow { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 8px; padding: 6px 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+  .stage-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .stage-pill { font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 10px; }
+  .stage-pill-order { background: #FAEEDA; color: #854F0B; }
+  .stage-pill-receive { background: #EAF3DE; color: #3B6D11; }
+  td.locked-cell { background: rgba(0,0,0,0.02); }
+  .qty-variance { font-size: 11px; padding: 1px 6px; border-radius: 6px; font-weight: 500; display: inline-block; margin-left: 4px; }
+  .qty-variance-less { background: #FAEEDA; color: #854F0B; }
+  .qty-variance-more { background: #E6F1FB; color: #185FA5; }
+  .tracking-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 8px; background: #EEEDFE; color: #533BAB; font-weight: 500; }
+  .qty-ordered-box { background: #FAEEDA; border: 1px solid #FAC775; border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 4px; }
+  .qty-ordered-box .form-label { color: #854F0B; }
+  .qty-ordered-note { font-size: 11px; color: var(--color-text-secondary); margin-top: 5px; }
+  .dollar-amount-box { background: #EAF3DE; border: 1px solid #97C459; border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 14px; }
+  .dollar-amount-box .form-label { color: #3B6D11; }
+  .dollar-input-wrap { position: relative; display: flex; align-items: center; }
+  .dollar-symbol { position: absolute; left: 10px; font-size: 13px; font-weight: 500; color: #3B6D11; pointer-events: none; z-index: 1; }
+  .dollar-input { padding-left: 22px !important; }
+  .station-banner { border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .station-banner-s1 { background: #E6F1FB; border: 0.5px solid #85B7EB; }
+  .station-banner-s11 { background: #EAF3DE; border: 0.5px solid #97C459; }
+  .station-banner-icon { font-size: 18px; }
+  .station-banner-text { font-size: 13px; font-weight: 500; }
+  .station-banner-text-s1 { color: #185FA5; }
+  .station-banner-text-s11 { color: #3B6D11; }
+  .cross-station-box { border-radius: var(--border-radius-md); padding: 12px 14px; margin-top: 4px; border: 1px dashed var(--color-border-secondary); background: var(--color-background-secondary); }
+  .cross-station-box.checked-s1 { background: #EAF3DE; border-color: #97C459; }
+  .cross-station-box.checked-s11 { background: #E6F1FB; border-color: #85B7EB; }
+  .cross-station-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+  .cross-station-label input[type=checkbox] { margin-top: 2px; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; accent-color: #185FA5; }
+  .cross-station-label-text { font-size: 13px; font-weight: 500; }
+  .cross-station-sublabel { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; line-height: 1.4; }
+  .cross-station-preview { margin-top: 10px; padding: 8px 10px; background: #FFF3F3; border: 0.5px solid #F7C1C1; border-radius: var(--border-radius-md); font-size: 11px; color: #A32D2D; line-height: 1.5; display: none; }
+  .cross-station-preview.visible { display: block; }
+  tr.needs-review td { background: #FFF3F3 !important; }
+  tr.needs-review td:first-child { border-left: 3px solid #E24B4A; }
+  .review-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 8px; background: #FCEBEB; color: #A32D2D; margin-left: 6px; vertical-align: middle; }
+  .review-dismiss-btn { font-size: 10px; background: none; border: none; cursor: pointer; color: #A32D2D; padding: 0 2px; font-family: var(--font-sans); font-weight: 500; }
+  .review-dismiss-btn:hover { text-decoration: underline; }
+  .edit-item-banner { border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .edit-item-banner-s1 { background: #E6F1FB; border: 0.5px solid #85B7EB; }
+  .edit-item-banner-s11 { background: #EAF3DE; border: 0.5px solid #97C459; }
+  .edit-item-icon { font-size: 16px; }
+  .edit-item-banner-text { font-size: 12px; font-weight: 500; }
+  .edit-item-banner-text-s1 { color: #185FA5; }
+  .edit-item-banner-text-s11 { color: #3B6D11; }
+  .change-preview-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 12px; margin-top: 8px; display: none; }
+  .change-preview-box.visible { display: block; }
+  .change-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+  .change-field { color: var(--color-text-secondary); }
+  .change-vals { display: flex; align-items: center; gap: 6px; }
+  .change-old { color: var(--color-text-secondary); text-decoration: line-through; }
+  .change-arrow { color: var(--color-text-secondary); font-size: 11px; }
+  .change-new { color: #185FA5; font-weight: 500; }
+  .qty-avail-box { background: #E6F1FB; border: 1px solid #85B7EB; border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 14px; }
+  .qty-avail-box .form-label { color: #185FA5; }
+  .qty-avail-note { font-size: 11px; color: var(--color-text-secondary); margin-top: 5px; }
+
+  /* ── ADMIN PASSWORD GATE ── */
+  .admin-gate {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 340px; padding: 40px 20px;
+  }
+  .admin-gate-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 32px 28px;
+    width: 100%; max-width: 340px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .admin-gate-icon { font-size: 36px; margin-bottom: 14px; }
+  .admin-gate-title { font-size: 17px; font-weight: 500; margin-bottom: 4px; color: var(--color-text-primary); text-align: center; }
+  .admin-gate-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 22px; text-align: center; }
+  .admin-gate-input-wrap { position: relative; width: 100%; margin-bottom: 8px; }
+  .admin-gate-input { width: 100%; padding: 9px 40px 9px 12px; font-size: 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); letter-spacing: 0.08em; }
+  .admin-gate-input:focus { outline: none; border-color: #185FA5; }
+  .admin-gate-input.shake { animation: shake 0.35s ease; border-color: #E24B4A; background: #FFF5F5; }
+  .admin-gate-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 15px; padding: 2px; }
+  .admin-gate-toggle:hover { color: var(--color-text-primary); }
+  .admin-gate-error { font-size: 12px; color: #A32D2D; margin-bottom: 12px; min-height: 16px; text-align: center; }
+  .admin-gate-btn { width: 100%; padding: 9px; background: #185FA5; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); }
+  .admin-gate-btn:hover { background: #0C447C; }
+  .admin-gate-hint { font-size: 11px; color: var(--color-text-secondary); margin-top: 14px; text-align: center; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}
+  }
+
+  /* ── ADMIN DASHBOARD (shown after unlock) ── */
+  #admin-dashboard { display: none; }
+  #admin-dashboard.unlocked { display: block; }
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .admin-header-left { flex: 1; }
+  .admin-header-title { font-size: 18px; font-weight: 500; color: #185FA5; }
+  .admin-header-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .admin-filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .admin-filter-label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+  .admin-lock-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: none; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+  .admin-lock-btn:hover { background: #FAEEDA; color: #854F0B; border-color: #FAC775; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .kpi-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px; }
+  .kpi-card-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; font-weight: 500; }
+  .kpi-card-val { font-size: 22px; font-weight: 500; line-height: 1.1; }
+  .kpi-card-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; }
+  .admin-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 14px; }
+  .admin-section-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .admin-section-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue { background: #185FA5; }
+  .dot-green { background: #3B6D11; }
+  .dot-amber { background: #854F0B; }
+  .dot-purple { background: #533BAB; }
+  .dot-red { background: #A32D2D; }
+  .lb-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-rank { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .lb-rank-1 { background: #EF9F27; color: #fff; }
+  .lb-rank-2 { background: #B4B2A9; color: #fff; }
+  .lb-rank-3 { background: #97C459; color: #fff; }
+  .lb-rank-n { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .lb-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .lb-role { font-size: 11px; color: var(--color-text-secondary); }
+  .lb-val { font-size: 13px; font-weight: 500; text-align: right; }
+  .lb-bar-wrap { width: 80px; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .lb-bar { height: 100%; border-radius: 3px; }
+  .spend-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 8px; }
+  .spend-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
+  .spend-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; }
+  .spend-bar-label { font-size: 10px; color: var(--color-text-secondary); text-align: center; white-space: nowrap; }
+  .health-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px; }
+  .health-row:last-child { border-bottom: none; }
+  .health-item { flex: 1; font-weight: 500; }
+  .health-bar-wrap { width: 100px; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+  .health-bar { height: 100%; border-radius: 3px; }
+  .health-pct { width: 36px; text-align: right; font-weight: 500; }
+  .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 600px) { .admin-two-col { grid-template-columns: 1fr; } }
+  .no-data-msg { font-size: 13px; color: var(--color-text-secondary); text-align: center; padding: 16px 0; }
+</style>
+
+<div class="app">
+  <div class="tab-bar">
+    <div class="tab-group">
+      <button class="tab active-s1" id="tab-s1" onclick="showTab('s1')">Station 1</button>
+      <button class="tab" id="tab-s11" onclick="showTab('s11')">Station 11</button>
+      <button class="tab" id="tab-orders" onclick="showTab('orders')">Order Sheet</button>
+      <button class="tab" id="tab-prev" onclick="showTab('prev')">Previously Ordered</button>
+      <button class="tab" id="tab-admin" onclick="showTab('admin')">🔒 Admin</button>
+    </div>
+    <button class="btn-manage-users" onclick="openUserModal()">Manage users</button>
+    <span id="sync-badge" style="display:none; align-items:center; gap:4px; padding:3px 8px; border-radius:8px; font-size:11px; font-weight:500; margin-bottom:1px;"></span>
+  </div>
+
+  <!-- STATION 1 -->
+  <div id="s1" class="section active">
+    <div class="stats-row" id="s1-stats"></div>
+    <div class="card card-s1">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s1">Station 1 — Inventory</span><span id="s1-filter-chip"></span></div>
+        <button class="btn-add-item-s1" onclick="openAddModal('s1')"><span class="btn-add-plus">+</span> Add item</button>
+      </div>
+      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s1',this.value)" /></div>
+      <div class="table-wrap"><table><thead id="s1-thead"><tr style="background:#E6F1FB;"></tr></thead><tbody id="s1-body"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- STATION 11 -->
+  <div id="s11" class="section">
+    <div class="stats-row" id="s11-stats"></div>
+    <div class="card card-s11">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s11">Station 11 — Inventory</span><span id="s11-filter-chip"></span></div>
+        <button class="btn-add-item-s11" onclick="openAddModal('s11')"><span class="btn-add-plus">+</span> Add item</button>
+      </div>
+      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s11',this.value)" /></div>
+      <div class="table-wrap"><table><thead id="s11-thead"><tr style="background:#EAF3DE;"></tr></thead><tbody id="s11-body"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ORDER SHEET -->
+  <div id="orders" class="section">
+    <div class="stats-row" id="order-stats"></div>
+    <div class="card card-orders" style="margin-bottom:12px;">
+      <div class="stage-header"><span class="table-title title-orders">Needs Ordering</span><span class="stage-pill stage-pill-order">Step 1 — Supervisor</span></div>
+      <p class="section-sub" style="margin-bottom:10px;">Items below are low or out of stock. Click Place Order to confirm who is ordering and lock the record.</p>
+      <div class="legend-row"><span class="badge-s1">Station 1</span><span class="badge-s11">Station 11</span></div>
+      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter..." oninput="setSearch('orders',this.value)" /></div>
+      <div class="table-wrap"><table><thead id="orders-thead"><tr></tr></thead><tbody id="order-body"></tbody></table></div>
+    </div>
+    <div class="card card-receive">
+      <div class="stage-header"><span class="table-title title-receive">Awaiting Receipt</span><span class="stage-pill stage-pill-receive">Step 2 — Receiver</span></div>
+      <p class="section-sub" style="margin-bottom:10px;">Order details are locked. Confirm receipt to complete the order and update inventory.</p>
+      <div class="legend-row"><span class="badge-s1">Station 1</span><span class="badge-s11">Station 11</span></div>
+      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter..." oninput="setSearch('receive',this.value)" /></div>
+      <div class="table-wrap"><table><thead id="receive-thead"><tr></tr></thead><tbody id="receive-body"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PREVIOUSLY ORDERED -->
+  <div id="prev" class="section">
+    <div class="stats-row" id="prev-stats"></div>
+    <div class="card card-prev">
+      <div class="table-header">
+        <span class="table-title title-prev">Previously Ordered</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="font-size:12px;color:var(--color-text-secondary);">Station:</label>
+          <select onchange="setPrevFilter(this.value)" style="font-size:12px;"><option value="all">All</option><option value="s1">Station 1</option><option value="s11">Station 11</option></select>
+        </div>
+      </div>
+      <p class="section-sub">Complete order history.</p>
+      <div class="legend-row"><span class="badge-s1">Station 1</span><span class="badge-s11">Station 11</span></div>
+      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter history..." oninput="setSearch('prev',this.value)" /></div>
+      <div class="table-wrap"><table><thead id="prev-thead"><tr></tr></thead><tbody id="prev-body"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ADMIN TAB -->
+  <div id="admin" class="section">
+
+    <!-- PASSWORD GATE -->
+    <div class="admin-gate" id="admin-gate">
+      <div class="admin-gate-card">
+        <div class="admin-gate-icon">🔐</div>
+        <div class="admin-gate-title">Admin Access</div>
+        <div class="admin-gate-sub">This area is restricted. Enter the admin password to view the KPI dashboard.</div>
+        <div class="admin-gate-input-wrap">
+          <input type="password" id="admin-pw-input" class="admin-gate-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')attemptAdminLogin()" autocomplete="off" />
+          <button class="admin-gate-toggle" onclick="togglePwVis()" id="pw-toggle-btn" title="Show/hide password">👁</button>
+        </div>
+        <div class="admin-gate-error" id="admin-pw-error"></div>
+        <button class="admin-gate-btn" onclick="attemptAdminLogin()">Unlock Dashboard</button>
+        <div class="admin-gate-hint">Default password: <strong>admin123</strong></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD (hidden until unlocked) -->
+    <div id="admin-dashboard">
+      <div class="admin-header">
+        <div class="admin-header-left">
+          <div class="admin-header-title">Admin Dashboard</div>
+          <div class="admin-header-sub">KPI rollup from all inventory and order activity</div>
+        </div>
+        <div class="admin-filter-row">
+          <span class="admin-filter-label">Period:</span>
+          <select id="admin-period" onchange="renderAdmin()" style="font-size:12px;">
+            <option value="all">All time</option>
+            <option value="month">This month</option>
+            <option value="quarter">This quarter</option>
+            <option value="year">This year</option>
+          </select>
+          <button class="btn btn-sm" onclick="seedDemoData()">Load demo data</button>
+          <button class="admin-lock-btn" onclick="lockAdmin()">🔒 Lock</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="admin-kpis"></div>
+
+      <div class="admin-two-col">
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-blue"></span>Spend by month</div><div id="admin-spend-chart"></div></div>
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-green"></span>Orders by station</div><div id="admin-station-split"></div></div>
+      </div>
+      <div class="admin-two-col">
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-amber"></span>Top orderers (supervisors)</div><div id="admin-top-orderers"></div></div>
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-green"></span>Top receivers</div><div id="admin-top-receivers"></div></div>
+      </div>
+      <div class="admin-two-col">
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-blue"></span>Top inventory counters</div><div id="admin-top-counters"></div></div>
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-purple"></span>Most ordered items</div><div id="admin-top-items"></div></div>
+      </div>
+      <div class="admin-two-col">
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-green"></span>Inventory health by item</div><div id="admin-inv-health"></div></div>
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-red"></span>Items never counted</div><div id="admin-never-counted"></div></div>
+      </div>
+      <div class="admin-two-col">
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-amber"></span>Average order value by supervisor</div><div id="admin-avg-order-val"></div></div>
+        <div class="admin-section"><div class="admin-section-title"><span class="dot dot-red"></span>Current inventory alerts</div><div id="admin-alerts"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- All modals -->
+<div class="modal-overlay" id="edit-item-modal"><div class="modal"><h3>Edit inventory item</h3><p class="modal-sub">Update the item's details.</p><div class="edit-item-banner" id="edit-item-banner"><span class="edit-item-icon">✏️</span><span class="edit-item-banner-text" id="edit-item-banner-text"></span></div><div class="form-row"><label class="form-label">Description<span class="required-star">*</span></label><input class="form-input" id="ei-desc" oninput="updateEditPreview()" /></div><div class="form-row"><label class="form-label">Reference number<span class="required-star">*</span></label><input class="form-input" id="ei-ref" oninput="updateEditPreview()" /></div><div class="form-row"><label class="form-label">Package type</label><select class="form-input" id="ei-pkg" onchange="updateEditPreview()"><option value="Box">Box</option><option value="Unit">Unit</option></select></div><div class="form-row"><label class="form-label">Qty required<span class="required-star">*</span></label><input class="form-input" id="ei-req" type="number" min="1" oninput="updateEditPreview()" /></div><div class="change-preview-box" id="edit-change-preview"><div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;">Changes</div><div id="edit-change-rows"></div></div><div class="modal-actions"><button class="btn" onclick="closeModal('edit-item-modal')">Cancel</button><button class="btn btn-primary" id="edit-item-save-btn" onclick="saveEditItem()">Save changes</button></div></div></div>
+<div class="modal-overlay" id="inv-confirm-modal"><div class="modal"><h3>Inventory count</h3><p class="modal-sub">Enter the current qty available, then confirm who counted and the date.</p><div class="modal-item-name modal-item-blue"><span>📦</span><span id="inv-confirm-desc"></span></div><div class="inv-confirm-summary" id="inv-confirm-summary"></div><div class="qty-avail-box"><label class="form-label">Qty available<span class="required-star">*</span></label><input type="number" class="form-input" id="inv-qty-avail" min="0" placeholder="Enter current count" oninput="updateInvQtyPreview()" /><div class="qty-avail-note" id="inv-qty-note"></div></div><hr class="modal-divider"><div class="inv-confirm-grid"><div class="form-row"><label class="form-label">Inventoried by<span class="required-star">*</span></label><select class="form-input" id="inv-counter-select"><option value="">— select —</option></select></div><div class="form-row"><label class="form-label">Date inventoried<span class="required-star">*</span></label><input type="date" class="form-input" id="inv-date-input" /></div></div><div class="modal-actions"><button class="btn" onclick="closeModal('inv-confirm-modal')">Cancel</button><button class="btn btn-green" onclick="confirmInventory()">Confirm &amp; save</button></div></div></div>
+<div class="modal-overlay" id="add-modal"><div class="modal"><h3 id="add-modal-title">Add inventory item</h3><p class="modal-sub" id="add-modal-sub">Fill in the item details below.</p><div class="station-banner" id="add-station-banner"><span class="station-banner-icon" id="add-station-icon"></span><span class="station-banner-text" id="add-station-text"></span></div><div class="form-row"><label class="form-label">Description<span class="required-star">*</span></label><input class="form-input" id="add-desc" placeholder="Item description" /></div><div class="form-row"><label class="form-label">Reference number<span class="required-star">*</span></label><input class="form-input" id="add-ref" placeholder="e.g. REF-001" /></div><div class="form-row"><label class="form-label">Package type</label><select class="form-input" id="add-pkg"><option value="Box">Box</option><option value="Unit">Unit</option></select></div><div class="inv-confirm-grid" style="margin-bottom:14px;"><div class="form-row" style="margin-bottom:0;"><label class="form-label">Qty required<span class="required-star">*</span></label><input class="form-input" id="add-req" type="number" min="1" placeholder="100" /></div><div class="form-row" style="margin-bottom:0;"><label class="form-label">Qty available</label><input class="form-input" id="add-avail" type="number" min="0" placeholder="0" /></div></div><hr class="modal-divider"><div class="cross-station-box" id="cross-station-box"><label class="cross-station-label"><input type="checkbox" id="add-cross-station" onchange="toggleCrossStation()" /><div><div class="cross-station-label-text" id="cross-station-label-text">Also add to Station 11</div><div class="cross-station-sublabel">The item will be added to the other station's inventory list, highlighted in red for review.</div></div></label><div class="cross-station-preview" id="cross-station-preview"></div></div><div class="modal-actions"><button class="btn" onclick="closeModal('add-modal')">Cancel</button><button class="btn btn-primary" id="add-save-btn" onclick="saveAddItem()">Add item</button></div></div></div>
+<div class="modal-overlay" id="place-order-modal"><div class="modal"><h3>Place order</h3><p class="modal-sub">Fill in all required fields. Once placed, this record is locked.</p><div class="modal-item-name modal-item-amber"><span>📋</span><span id="po-desc"></span></div><div class="inv-confirm-summary" id="po-summary"></div><hr class="modal-divider"><div class="inv-confirm-grid" style="margin-bottom:14px;"><div class="form-row" style="margin-bottom:0;"><label class="form-label">Ordered by (supervisor)<span class="required-star">*</span></label><select class="form-input" id="po-orderer"><option value="">— select supervisor —</option></select></div><div class="form-row" style="margin-bottom:0;"><label class="form-label">Date ordered<span class="required-star">*</span></label><input type="date" class="form-input" id="po-date" /></div></div><div class="qty-ordered-box" style="margin-bottom:14px;"><label class="form-label">Qty ordered<span class="required-star">*</span></label><input type="number" class="form-input" id="po-qty-ordered" min="1" placeholder="Enter qty being ordered" /><div class="qty-ordered-note" id="po-qty-note"></div></div><div class="dollar-amount-box"><label class="form-label">Order amount<span class="required-star">*</span></label><div class="dollar-input-wrap"><span class="dollar-symbol">$</span><input type="number" class="form-input dollar-input" id="po-dollar-amount" min="0" step="0.01" placeholder="0.00" /></div></div><div style="margin-bottom:14px;"></div><div class="form-row"><label class="form-label">Tracking number<span class="optional-tag">(optional)</span></label><input type="text" class="form-input" id="po-tracking" placeholder="e.g. 1Z999AA10123456784" /></div><div class="modal-actions"><button class="btn" onclick="closeModal('place-order-modal')">Cancel</button><button class="btn btn-amber" onclick="confirmPlaceOrder()">Place order &amp; lock</button></div></div></div>
+<div class="modal-overlay" id="confirm-receipt-modal"><div class="modal modal-md"><h3>Confirm receipt</h3><p class="modal-sub">Confirm who received this item and the date it arrived.</p><div class="modal-item-name modal-item-green"><span>✓</span><span id="cr-desc"></span></div><div class="inv-confirm-summary" id="cr-summary"></div><hr class="modal-divider"><div class="inv-confirm-grid"><div class="form-row"><label class="form-label">Received by<span class="required-star">*</span></label><select class="form-input" id="cr-receiver"><option value="">— select —</option></select></div><div class="form-row"><label class="form-label">Date received<span class="required-star">*</span></label><input type="date" class="form-input" id="cr-date" /></div></div><div class="modal-actions"><button class="btn" onclick="closeModal('confirm-receipt-modal')">Cancel</button><button class="btn btn-green" onclick="executeConfirmReceipt()">Confirm receipt</button></div></div></div>
+<div class="modal-overlay" id="user-modal"><div class="modal"><h3>Manage users</h3><p class="modal-sub">Supervisors can order. All users can receive and count inventory.</p><div class="role-note" id="role-note-text"></div><hr class="modal-divider"><div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;">Current users</div><div id="user-list" style="margin-bottom:16px;"></div><hr class="modal-divider"><div style="font-size:13px;font-weight:500;margin-bottom:12px;">Add new user</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div class="form-row" style="margin-bottom:0;"><label class="form-label">Name</label><input class="form-input" id="new-user-name" placeholder="Full name" /></div><div class="form-row" style="margin-bottom:0;"><label class="form-label">Role</label><select class="form-input" id="new-user-role"><option value="VST">VST</option><option value="Lead VST">Lead VST</option><option value="Shift Supervisor">Shift Supervisor</option><option value="Field Supervisor">Field Supervisor</option></select></div></div><div class="modal-actions"><button class="btn" onclick="closeModal('user-modal')">Done</button><button class="btn btn-primary" onclick="addUser()">Add user</button></div></div></div>
+<div class="modal-overlay" id="edit-modal"><div class="modal modal-md"><h3>Edit user</h3><p class="modal-sub">Update this user's name or role.</p><div class="edit-target-card"><div class="edit-target-avatar" id="edit-avatar"></div><div class="edit-target-info"><div class="edit-target-label">Current name</div><div class="edit-target-val" id="edit-current-name"></div><div class="edit-target-label" style="margin-top:4px;">Current role</div><div class="edit-target-val" id="edit-current-role-display"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-row"><label class="form-label">New name</label><input class="form-input" id="edit-name-input" /></div><div class="form-row"><label class="form-label">New role</label><select class="form-input" id="edit-role-input"><option value="VST">VST</option><option value="Lead VST">Lead VST</option><option value="Shift Supervisor">Shift Supervisor</option><option value="Field Supervisor">Field Supervisor</option></select></div></div><div id="edit-role-change-preview" style="display:none;" class="role-change-arrow"></div><div id="edit-sup-warning" style="display:none;" class="warning-box"></div><div class="modal-actions"><button class="btn" onclick="closeModal('edit-modal')">Cancel</button><button class="btn btn-primary" onclick="saveEditUser()">Save changes</button></div></div></div>
+<div class="modal-overlay" id="remove-modal"><div class="modal modal-sm"><h3>Supervisor approval required</h3><p class="modal-sub">Removing a user requires supervisor sign-off.</p><div class="remove-target-card"><div class="remove-target-avatar" id="remove-avatar"></div><div class="remove-target-info"><div class="remove-target-name" id="remove-name-display"></div><div class="remove-target-role" id="remove-role-display"></div></div></div><div class="warning-box" id="remove-warning-box"></div><div id="remove-form-area"></div><div class="modal-actions"><button class="btn" onclick="closeModal('remove-modal')">Cancel</button><button class="btn btn-red" id="remove-confirm-btn" onclick="executeRemove()">Remove user</button></div></div></div>
+
+<script>
+
+var BACKEND_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+var SYNC_ENABLED = true;
+
+function loadFromBackend() {
+  if (!SYNC_ENABLED) { init(); return; }
+  showSyncStatus('loading');
+  fetch(BACKEND_URL)
+    .then(function(r) { return r.json(); })
+    .then(function(resp) {
+      if (resp.ok && resp.data) {
+        if (resp.data.users && resp.data.users.length) state.users = resp.data.users;
+        if (resp.data.s1 && resp.data.s1.length) state.s1 = resp.data.s1;
+        if (resp.data.s11 && resp.data.s11.length) state.s11 = resp.data.s11;
+        if (resp.data.pendingOrders) state.pendingOrders = resp.data.pendingOrders;
+        if (resp.data.awaitingReceipt) state.awaitingReceipt = resp.data.awaitingReceipt;
+        if (resp.data.orderHistory) state.orderHistory = resp.data.orderHistory;
+        var allIds = state.s1.concat(state.s11).map(function(i){return i.id;});
+        if (allIds.length) state.nextId = Math.max.apply(null, allIds) + 1;
+      }
+      hideSyncStatus();
+      init();
+    })
+    .catch(function(err) {
+      console.warn('Backend load failed, running offline:', err);
+      hideSyncStatus();
+      init();
+    });
+}
+
+function saveToBackend() {
+  if (!SYNC_ENABLED) return;
+  showSyncStatus('saving');
+  fetch(BACKEND_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'SAVE_ALL',
+      state: {
+        users: state.users,
+        s1: state.s1,
+        s11: state.s11,
+        pendingOrders: state.pendingOrders,
+        awaitingReceipt: state.awaitingReceipt,
+        orderHistory: state.orderHistory
+      }
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(resp) {
+    hideSyncStatus();
+    if (!resp.ok) console.error('Save failed:', resp.error);
+  })
+  .catch(function(err) {
+    hideSyncStatus();
+    console.warn('Backend save failed:', err);
+  });
+}
+
+function showSyncStatus(type) {
+  var el = document.getElementById('sync-badge');
+  if (!el) return;
+  el.style.display = 'inline-flex';
+  if (type === 'loading') {
+    el.style.background = '#E6F1FB'; el.style.color = '#185FA5';
+    el.textContent = '⟳ Loading…';
+  } else {
+    el.style.background = '#EAF3DE'; el.style.color = '#3B6D11';
+    el.textContent = '⟳ Saving…';
+  }
+}
+function hideSyncStatus() {
+  var el = document.getElementById('sync-badge');
+  if (!el) return;
+  el.style.background = '#EAF3DE'; el.style.color = '#3B6D11';
+  el.textContent = '✓ Synced';
+  setTimeout(function() { el.style.display = 'none'; }, 2000);
+}
+var today = new Date().toISOString().split('T')[0];
+var ADMIN_PASSWORD = 'admin123';
+var adminUnlocked = false;
+var SUPERVISOR_ROLES = ['Shift Supervisor','Field Supervisor'];
+function isSup(r){return SUPERVISOR_ROLES.indexOf(r)!==-1;}
+function roleClass(r){return r==='VST'?'role-vst':r==='Lead VST'?'role-lvst':r==='Shift Supervisor'?'role-ss':'role-fs';}
+function initials(n){return n.split(' ').map(function(p){return p[0]||'';}).join('').toUpperCase().slice(0,2);}
+function fmtDate(d){if(!d)return'—';var p=d.split('-');return p.length===3?p[1]+'/'+p[2]+'/'+p[0]:d;}
+function fmtDollar(v){if(v===null||v===undefined||v==='')return'—';return'$'+parseFloat(v).toFixed(2);}
+function fmtK(v){if(v>=1000)return'$'+(v/1000).toFixed(1)+'k';return'$'+v.toFixed(2);}
+function oppKey(k){return k==='s1'?'s11':'s1';}
+function oppLabel(k){return k==='s1'?'Station 11':'Station 1';}
+
+// ── PASSWORD GATE ──────────────────────────────────────────────
+function togglePwVis(){
+  var inp=document.getElementById('admin-pw-input');
+  var btn=document.getElementById('pw-toggle-btn');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁';}
+}
+
+function attemptAdminLogin(){
+  var inp=document.getElementById('admin-pw-input');
+  var err=document.getElementById('admin-pw-error');
+  if(inp.value===ADMIN_PASSWORD){
+    adminUnlocked=true;
+    document.getElementById('admin-gate').style.display='none';
+    document.getElementById('admin-dashboard').classList.add('unlocked');
+    document.getElementById('tab-admin').textContent='Admin';
+    inp.value='';err.textContent='';
+    renderAdmin();
+  }else{
+    err.textContent='Incorrect password. Please try again.';
+    inp.classList.add('shake');
+    inp.select();
+    setTimeout(function(){inp.classList.remove('shake');inp.style.borderColor='';inp.style.background='';},600);
+  }
+}
+
+function lockAdmin(){
+  adminUnlocked=false;
+  document.getElementById('admin-gate').style.display='flex';
+  document.getElementById('admin-dashboard').classList.remove('unlocked');
+  document.getElementById('tab-admin').textContent='🔒 Admin';
+  document.getElementById('admin-pw-input').value='';
+  document.getElementById('admin-pw-error').textContent='';
+  document.getElementById('admin-pw-input').type='password';
+  document.getElementById('pw-toggle-btn').textContent='👁';
+  // Switch away from admin tab
+  showTab('s1');
+}
+
+// ── STATE ──────────────────────────────────────────────────────
+var state = {
+  users:[
+    {name:'Spencer',role:'Shift Supervisor'},{name:'Ken',role:'Field Supervisor'},
+    {name:'Miguel',role:'Lead VST'},{name:'Angel',role:'VST'},{name:'Juan',role:'VST'},
+  ],
+  s1:[
+    {id:1,desc:'Packing Tape',ref:'PT-001',pkg:'Box',req:50,avail:45,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+    {id:2,desc:'Bubble Wrap Roll',ref:'BW-002',pkg:'Unit',req:30,avail:10,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+    {id:3,desc:'Box 12x12x8',ref:'BX-003',pkg:'Box',req:100,avail:80,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+    {id:4,desc:'Foam Peanuts',ref:'FP-004',pkg:'Box',req:20,avail:4,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+  ],
+  s11:[
+    {id:5,desc:'Stretch Film',ref:'SF-005',pkg:'Unit',req:40,avail:38,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+    {id:6,desc:'Label Rolls 4x6',ref:'LR-006',pkg:'Box',req:60,avail:20,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+    {id:7,desc:'Zip Ties (100pk)',ref:'ZT-007',pkg:'Box',req:25,avail:25,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+    {id:8,desc:'Pallet Jack Strap',ref:'PS-008',pkg:'Unit',req:10,avail:2,lastCountedBy:'',lastCountedDate:'',needsReview:false},
+  ],
+  pendingOrders:[],awaitingReceipt:[],orderHistory:[],
+  nextId:9,addTarget:'s1',
+  sort:{s1:{col:null,dir:1},s11:{col:null,dir:1},orders:{col:null,dir:1},receive:{col:null,dir:1},prev:{col:null,dir:1}},
+  search:{s1:'',s11:'',orders:'',receive:'',prev:''},
+  statusFilter:{s1:null,s11:null},
+  prevFilter:'all',
+  pendingSave:{},pendingRemove:{},pendingEdit:{},pendingPlaceOrder:{},pendingReceipt:{},
+  editItem:{stKey:null,itemId:null}
+};
+
+function seedDemoData(){
+  var months=['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'];
+  var orderers=['Spencer','Ken'];var receivers=['Miguel','Angel','Juan','Spencer','Ken'];
+  var items=[{desc:'Packing Tape',station:'s1'},{desc:'Bubble Wrap Roll',station:'s1'},{desc:'Box 12x12x8',station:'s1'},{desc:'Foam Peanuts',station:'s1'},{desc:'Stretch Film',station:'s11'},{desc:'Label Rolls 4x6',station:'s11'},{desc:'Zip Ties (100pk)',station:'s11'},{desc:'Pallet Jack Strap',station:'s11'}];
+  var counters=['Miguel','Angel','Juan','Spencer','Ken'];
+  var hist=[];var id=1000;
+  months.forEach(function(m){var n=Math.floor(Math.random()*5)+2;for(var j=0;j<n;j++){var item=items[Math.floor(Math.random()*items.length)];var orderer=orderers[Math.floor(Math.random()*orderers.length)];var receiver=receivers[Math.floor(Math.random()*receivers.length)];var day=String(Math.floor(Math.random()*27)+1).padStart(2,'0');var amt=Math.round((Math.random()*400+20)*100)/100;var qty=Math.floor(Math.random()*30)+5;hist.push({orderId:id++,itemId:90+j,station:item.station,stationLabel:item.station==='s1'?'Station 1':'Station 11',desc:item.desc,pkg:'Box',qtyNeeded:qty-2,qtyOrdered:qty,orderAmount:amt,orderedBy:orderer,dateOrdered:m+'-'+day,receivedBy:receiver,dateReceived:m+'-'+day,trackingNumber:'',countedBy:counters[id%counters.length]});}});
+  state.s1.forEach(function(item,i){item.lastCountedBy=counters[i%counters.length];item.lastCountedDate='2026-02-'+String(Math.floor(Math.random()*20)+1).padStart(2,'0');});
+  state.s11[0].lastCountedBy=counters[0];state.s11[0].lastCountedDate='2026-01-15';
+  state.s11[2].lastCountedBy=counters[2];state.s11[2].lastCountedDate='2026-02-10';
+  state.s11[3].lastCountedBy=counters[1];state.s11[3].lastCountedDate='2026-03-01';
+  state.orderHistory=hist;
+  renderAdmin();renderStation('s1');renderStation('s11');renderOrderStats();renderPrev();
+}
+
+// ── ADMIN RENDER ──────────────────────────────────────────────
+function getAdminData(){
+  var period=document.getElementById('admin-period').value;var now=new Date();
+  return state.orderHistory.filter(function(o){
+    if(period==='all')return true;var d=new Date(o.dateOrdered);
+    if(period==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+    if(period==='quarter'){var q=Math.floor(now.getMonth()/3);return d.getFullYear()===now.getFullYear()&&Math.floor(d.getMonth()/3)===q;}
+    if(period==='year')return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+function renderAdmin(){
+  if(!adminUnlocked)return;
+  var hist=getAdminData();
+  var totalSpend=hist.reduce(function(s,o){return s+(o.orderAmount||0);},0);
+  var totalOrders=hist.length;
+  var totalQty=hist.reduce(function(s,o){return s+o.qtyOrdered;},0);
+  var avgOrderVal=totalOrders?totalSpend/totalOrders:0;
+  var allItems=state.s1.concat(state.s11);
+  var stocked=allItems.filter(function(i){return getStatus(i.avail,i.req)==='stocked';}).length;
+  var healthPct=allItems.length?Math.round(stocked/allItems.length*100):0;
+  var needOrder=allItems.filter(function(i){return getStatus(i.avail,i.req)==='order';}).length;
+  document.getElementById('admin-kpis').innerHTML=kpiCard('Total spend',fmtK(totalSpend),'#185FA5',totalOrders+' orders')+kpiCard('Avg order value',fmtK(avgOrderVal),'#3B6D11','per order')+kpiCard('Total orders',String(totalOrders),'#854F0B','completed')+kpiCard('Total qty ordered',String(totalQty),'#533BAB','units/boxes')+kpiCard('Inventory health',healthPct+'%',healthPct>=80?'#3B6D11':'#854F0B',stocked+'/'+allItems.length+' stocked')+kpiCard('Items need reorder',String(needOrder),'#A32D2D','below threshold');
+  renderSpendChart(hist);renderStationSplit(hist);
+  renderLeaderboard('admin-top-orderers',countBy(hist,'orderedBy'),'#854F0B','$ ordered',true,hist);
+  renderLeaderboard('admin-top-receivers',countBy(hist,'receivedBy'),'#3B6D11','receipts',false,null);
+  renderCounterLeaderboard();renderTopItems(hist);renderInvHealth(allItems);renderNeverCounted(allItems);renderAvgOrderBySuper(hist);renderAlerts(allItems);
+}
+function kpiCard(label,val,color,sub){return'<div class="kpi-card"><div class="kpi-card-label">'+label+'</div><div class="kpi-card-val" style="color:'+color+'">'+val+'</div><div class="kpi-card-sub">'+sub+'</div></div>';}
+function countBy(arr,field){var map={};arr.forEach(function(o){var k=o[field]||'Unknown';map[k]=(map[k]||0)+1;});return Object.keys(map).sort(function(a,b){return map[b]-map[a];}).map(function(k){return{name:k,count:map[k]};});}
+function sumBy(arr,field){var map={};arr.forEach(function(o){var k=o[field]||'Unknown';map[k]=(map[k]||0)+(o.orderAmount||0);});return Object.keys(map).sort(function(a,b){return map[b]-map[a];}).map(function(k){return{name:k,val:map[k]};});}
+function renderLeaderboard(elId,data,barColor,unit,dollarMode,hist){var el=document.getElementById(elId);if(!data.length){el.innerHTML='<div class="no-data-msg">No data yet. Load demo data or complete some orders.</div>';return;}var dollarData=dollarMode?sumBy(hist,'orderedBy'):null;el.innerHTML=data.slice(0,5).map(function(d,i){var rankCls=i===0?'lb-rank-1':i===1?'lb-rank-2':i===2?'lb-rank-3':'lb-rank-n';var user=state.users.find(function(u){return u.name===d.name;})||{role:''};var valStr=dollarMode?(function(){var dd=dollarData.find(function(x){return x.name===d.name;});return dd?fmtK(dd.val):'$0';})()+' · '+d.count+'×':d.count+' '+unit;return'<div class="lb-row"><div class="lb-rank '+rankCls+'">'+(i+1)+'</div><div><div class="lb-name">'+d.name+'</div><div class="lb-role">'+user.role+'</div></div><div style="flex:1"></div><div class="lb-val" style="color:'+barColor+'">'+valStr+'</div></div>';}).join('');}
+function renderCounterLeaderboard(){var el=document.getElementById('admin-top-counters');var map={};state.s1.concat(state.s11).forEach(function(item){if(item.lastCountedBy){map[item.lastCountedBy]=(map[item.lastCountedBy]||0)+1;}});state.orderHistory.forEach(function(o){if(o.countedBy){map[o.countedBy]=(map[o.countedBy]||0)+1;}});var data=Object.keys(map).sort(function(a,b){return map[b]-map[a];}).slice(0,5);if(!data.length){el.innerHTML='<div class="no-data-msg">No inventory counts recorded yet.</div>';return;}var maxC=map[data[0]];el.innerHTML=data.map(function(name,i){var rankCls=i===0?'lb-rank-1':i===1?'lb-rank-2':i===2?'lb-rank-3':'lb-rank-n';var user=state.users.find(function(u){return u.name===name;})||{role:''};var barPct=Math.round(map[name]/maxC*100);return'<div class="lb-row"><div class="lb-rank '+rankCls+'">'+(i+1)+'</div><div><div class="lb-name">'+name+'</div><div class="lb-role">'+user.role+'</div></div><div style="flex:1"></div><div class="lb-bar-wrap"><div class="lb-bar" style="width:'+barPct+'%;background:#185FA5;"></div></div><div class="lb-val" style="color:#185FA5;margin-left:8px;">'+map[name]+' counts</div></div>';}).join('');}
+function renderTopItems(hist){var el=document.getElementById('admin-top-items');if(!hist.length){el.innerHTML='<div class="no-data-msg">No order history yet.</div>';return;}var map={};hist.forEach(function(o){if(!map[o.desc])map[o.desc]={count:0,spend:0,station:o.stationLabel};map[o.desc].count++;map[o.desc].spend+=o.orderAmount||0;});var items=Object.keys(map).sort(function(a,b){return map[b].count-map[a].count;}).slice(0,6);var maxC=map[items[0]].count;el.innerHTML=items.map(function(name,i){var d=map[name];var rankCls=i===0?'lb-rank-1':i===1?'lb-rank-2':i===2?'lb-rank-3':'lb-rank-n';var stB=d.station==='Station 1'?'<span class="badge-s1" style="font-size:10px;padding:1px 5px;">S1</span>':'<span class="badge-s11" style="font-size:10px;padding:1px 5px;">S11</span>';var barPct=Math.round(d.count/maxC*100);return'<div class="lb-row"><div class="lb-rank '+rankCls+'">'+(i+1)+'</div><div><div class="lb-name" style="font-size:12px;">'+name+' '+stB+'</div><div class="lb-role">'+fmtK(d.spend)+' total spend</div></div><div style="flex:1"></div><div class="lb-bar-wrap"><div class="lb-bar" style="width:'+barPct+'%;background:#533BAB;"></div></div><div class="lb-val" style="color:#533BAB;margin-left:8px;">'+d.count+'×</div></div>';}).join('');}
+function renderSpendChart(hist){var el=document.getElementById('admin-spend-chart');if(!hist.length){el.innerHTML='<div class="no-data-msg">No spend data yet. Load demo data to see the chart.</div>';return;}var map={};hist.forEach(function(o){var m=o.dateOrdered?o.dateOrdered.substr(0,7):'';if(m)map[m]=(map[m]||0)+(o.orderAmount||0);});var months=Object.keys(map).sort().slice(-8);if(!months.length){el.innerHTML='<div class="no-data-msg">No spend data yet.</div>';return;}var maxV=Math.max.apply(null,months.map(function(m){return map[m];}));el.innerHTML='<div class="spend-chart">'+months.map(function(m){var h=Math.max(4,Math.round(map[m]/maxV*72));return'<div class="spend-bar-wrap"><div style="font-size:9px;color:var(--color-text-secondary);margin-bottom:2px;">'+fmtK(map[m])+'</div><div class="spend-bar" style="height:'+h+'px;background:#185FA5;width:100%;"></div><div class="spend-bar-label">'+m.substr(5)+'</div></div>';}).join('')+'</div>';}
+function renderStationSplit(hist){var el=document.getElementById('admin-station-split');if(!hist.length){el.innerHTML='<div class="no-data-msg">No order history yet.</div>';return;}var s1=hist.filter(function(o){return o.station==='s1';});var s11=hist.filter(function(o){return o.station==='s11';});var s1spend=s1.reduce(function(s,o){return s+(o.orderAmount||0);},0);var s11spend=s11.reduce(function(s,o){return s+(o.orderAmount||0);},0);var total=s1.length+s11.length||1;var s1pct=Math.round(s1.length/total*100);var s11pct=100-s1pct;el.innerHTML='<div style="margin-bottom:12px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:12px;font-weight:500;color:#185FA5;">Station 1</span><span style="font-size:11px;color:var(--color-text-secondary);">'+s1.length+' orders · '+fmtK(s1spend)+'</span></div><div style="height:10px;background:var(--color-background-secondary);border-radius:5px;overflow:hidden;"><div style="height:100%;width:'+s1pct+'%;background:#185FA5;border-radius:5px;"></div></div><div style="font-size:11px;color:#185FA5;margin-top:3px;">'+s1pct+'% of orders</div></div><div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:12px;font-weight:500;color:#3B6D11;">Station 11</span><span style="font-size:11px;color:var(--color-text-secondary);">'+s11.length+' orders · '+fmtK(s11spend)+'</span></div><div style="height:10px;background:var(--color-background-secondary);border-radius:5px;overflow:hidden;"><div style="height:100%;width:'+s11pct+'%;background:#3B6D11;border-radius:5px;"></div></div><div style="font-size:11px;color:#3B6D11;margin-top:3px;">'+s11pct+'% of orders</div></div>';}
+function renderInvHealth(allItems){var el=document.getElementById('admin-inv-health');if(!allItems.length){el.innerHTML='<div class="no-data-msg">No items.</div>';return;}var sorted=allItems.slice().sort(function(a,b){return(a.avail/a.req)-(b.avail/b.req);});el.innerHTML=sorted.slice(0,6).map(function(item){var pct=item.req>0?Math.round(item.avail/item.req*100):100;var col=pct>=60?'#3B6D11':pct>=30?'#854F0B':'#A32D2D';return'<div class="health-row"><div class="health-item" style="font-size:12px;">'+item.desc+'</div><div class="health-bar-wrap"><div class="health-bar" style="width:'+Math.min(pct,100)+'%;background:'+col+';"></div></div><div class="health-pct" style="color:'+col+';font-size:12px;">'+pct+'%</div></div>';}).join('');}
+function renderNeverCounted(allItems){var el=document.getElementById('admin-never-counted');var uncounted=allItems.filter(function(i){return !i.lastCountedBy;});if(!uncounted.length){el.innerHTML='<div style="font-size:13px;color:#3B6D11;padding:8px 0;">All items have been inventoried. Great work!</div>';return;}el.innerHTML=uncounted.map(function(item){var station=state.s1.find(function(i){return i.id===item.id;})?'<span class="badge-s1" style="font-size:10px;padding:1px 5px;">S1</span>':'<span class="badge-s11" style="font-size:10px;padding:1px 5px;">S11</span>';return'<div class="health-row"><div class="health-item" style="font-size:12px;">'+item.desc+' '+station+'</div><div style="font-size:11px;color:#A32D2D;font-weight:500;">Never counted</div></div>';}).join('');}
+function renderAvgOrderBySuper(hist){var el=document.getElementById('admin-avg-order-val');if(!hist.length){el.innerHTML='<div class="no-data-msg">No order history yet.</div>';return;}var map={};hist.forEach(function(o){if(!map[o.orderedBy])map[o.orderedBy]={count:0,spend:0};map[o.orderedBy].count++;map[o.orderedBy].spend+=o.orderAmount||0;});var sups=Object.keys(map).sort(function(a,b){return(map[b].spend/map[b].count)-(map[a].spend/map[a].count);});var maxAvg=sups.length?map[sups[0]].spend/map[sups[0]].count:1;el.innerHTML=sups.map(function(name,i){var avg=map[name].spend/map[name].count;var pct=Math.round(avg/maxAvg*100);var rankCls=i===0?'lb-rank-1':i===1?'lb-rank-2':i===2?'lb-rank-3':'lb-rank-n';var user=state.users.find(function(u){return u.name===name;})||{role:''};return'<div class="lb-row"><div class="lb-rank '+rankCls+'">'+(i+1)+'</div><div><div class="lb-name">'+name+'</div><div class="lb-role">'+user.role+' · '+map[name].count+' orders</div></div><div style="flex:1"></div><div class="lb-bar-wrap"><div class="lb-bar" style="width:'+pct+'%;background:#854F0B;"></div></div><div class="lb-val" style="color:#854F0B;margin-left:8px;">'+fmtK(avg)+' avg</div></div>';}).join('');}
+function renderAlerts(allItems){var el=document.getElementById('admin-alerts');var alerts=[];allItems.forEach(function(item){var s=getStatus(item.avail,item.req);var station=state.s1.find(function(i){return i.id===item.id;})?'Station 1':'Station 11';if(s==='order')alerts.push({item:item,station:station,type:'order',msg:'Needs ordering',col:'#A32D2D',bg:'#FCEBEB'});else if(s==='low')alerts.push({item:item,station:station,type:'low',msg:'Low stock',col:'#854F0B',bg:'#FAEEDA'});});state.pendingOrders.concat(state.awaitingReceipt).forEach(function(o){alerts.push({item:{desc:o.desc},station:o.stationLabel,type:'pending',msg:state.awaitingReceipt.find(function(x){return x.orderId===o.orderId;})?'Awaiting receipt':'Order pending',col:'#533BAB',bg:'#EEEDFE'});});if(!alerts.length){el.innerHTML='<div style="font-size:13px;color:#3B6D11;padding:8px 0;">No current alerts. All systems nominal.</div>';return;}el.innerHTML=alerts.slice(0,8).map(function(a){return'<div class="health-row"><div class="health-item" style="font-size:12px;">'+a.item.desc+'</div><div style="font-size:11px;color:var(--color-text-secondary);">'+a.station+'</div><div style="margin-left:auto;"><span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px;background:'+a.bg+';color:'+a.col+';">'+a.msg+'</span></div></div>';}).join('');}
+
+// ── ALL STANDARD LOGIC ─────────────────────────────────────────
+function getOrderers(){return state.users.filter(function(u){return isSup(u.role);}).map(function(u){return u.name;});}
+function getReceivers(){return state.users.map(function(u){return u.name;});}
+function getCounters(){return state.users.map(function(u){return u.name;});}
+function getSupervisors(){return state.users.filter(function(u){return isSup(u.role);});}
+var INV_COLS=[{key:'desc',label:'Description',type:'str'},{key:'ref',label:'Ref #',type:'str'},{key:'pkg',label:'Package',type:'str'},{key:'req',label:'Qty Req',type:'num'},{key:'avail',label:'Qty Avail',type:'num'},{key:'status',label:'Status',type:'str'},{key:'lastCountedBy',label:'Last Counted By',type:'str'},{key:'lastCountedDate',label:'Last Counted',type:'str'},{key:'_actions',label:'Actions',type:null}];
+var ORD_COLS=[{key:'desc',label:'Item',type:'str'},{key:'stationLabel',label:'Station',type:'str'},{key:'pkg',label:'Pkg',type:'str'},{key:'qtyNeeded',label:'Qty Needed',type:'num'},{key:'_action',label:'Place Order',type:null}];
+var RCV_COLS=[{key:'desc',label:'Item',type:'str'},{key:'stationLabel',label:'Station',type:'str'},{key:'pkg',label:'Pkg',type:'str'},{key:'qtyOrdered',label:'Qty Ordered',type:'num'},{key:'orderAmount',label:'Amount',type:'num'},{key:'orderedBy',label:'Ordered By',type:'str'},{key:'dateOrdered',label:'Date Ordered',type:'str'},{key:'trackingNumber',label:'Tracking #',type:'str'},{key:'_action',label:'Confirm Receipt',type:null}];
+var PREV_COLS=[{key:'desc',label:'Item',type:'str'},{key:'stationLabel',label:'Station',type:'str'},{key:'pkg',label:'Pkg',type:'str'},{key:'qtyNeeded',label:'Qty Needed',type:'num'},{key:'qtyOrdered',label:'Qty Ordered',type:'num'},{key:'orderAmount',label:'Amount',type:'num'},{key:'orderedBy',label:'Ordered By',type:'str'},{key:'dateOrdered',label:'Date Ordered',type:'str'},{key:'trackingNumber',label:'Tracking #',type:'str'},{key:'receivedBy',label:'Received By',type:'str'},{key:'dateReceived',label:'Date Received',type:'str'}];
+function arrowHtml(ac,col,dir){var a=ac===col;return'<span class="sort-arrows"><span class="arr arr-up" style="opacity:'+(a&&dir===1?1:0.2)+'"></span><span class="arr arr-dn" style="opacity:'+(a&&dir===-1?1:0.2)+'"></span></span>';}
+function renderThead(tid,cols,key){var s=state.sort[key];var row=document.querySelector('#'+tid+' tr');row.innerHTML=cols.map(function(c){var so=c.type!==null;var cls=so?'sortable'+(s.col===c.key?(s.dir===1?' sort-asc':' sort-desc'):''):'';var oc=so?'sortBy("'+key+'","'+c.key+'")':"";return'<th'+(cls?' class="'+cls+'"':'')+(oc?' onclick="'+oc+'"':'')+'><span class="th-inner">'+c.label+(so?arrowHtml(s.col,c.key,s.dir):'')+'</span></th>';}).join('');}
+function getStatus(a,r){var p=r>0?a/r:1;return p>=0.6?'stocked':p>=0.3?'low':'order';}
+function statusBadge(a,r){var s=getStatus(a,r);return s==='stocked'?'<span class="badge badge-stocked">Stocked</span>':s==='low'?'<span class="badge badge-low">Low</span>':'<span class="badge badge-order">Order</span>';}
+function sortAndFilter(key,items){var s=state.sort[key];var q=(state.search[key]||'').toLowerCase();var filtered=items.slice();if((key==='s1'||key==='s11')&&state.statusFilter[key]){var sf=state.statusFilter[key];filtered=filtered.filter(function(i){return getStatus(i.avail,i.req)===sf;});}if(q)filtered=filtered.filter(function(i){return['desc','ref','pkg','stationLabel','orderedBy','receivedBy','dateOrdered','dateReceived','lastCountedBy','lastCountedDate','trackingNumber'].some(function(f){return(String(i[f]||'')).toLowerCase().includes(q);})||[i.req,i.avail,i.qtyNeeded,i.qtyOrdered,i.orderAmount].some(function(v){return String(v||'').includes(q);});});if(state.prevFilter!=='all'&&key==='prev')filtered=filtered.filter(function(i){return i.station===state.prevFilter;});if(!s.col)return filtered;return filtered.sort(function(a,b){var av=s.col==='status'?getStatus(a.avail,a.req):(a[s.col]||'');var bv=s.col==='status'?getStatus(b.avail,b.req):(b[s.col]||'');if(typeof av==='number'&&typeof bv==='number')return(av-bv)*s.dir;return String(av).localeCompare(String(bv))*s.dir;});}
+function sortBy(key,col){var s=state.sort[key];if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=1;}if(key==='s1'||key==='s11')renderStation(key);else if(key==='orders')renderOrders();else if(key==='receive')renderReceive();else renderPrev();}
+function setSearch(key,val){state.search[key]=val;if(key==='s1'||key==='s11')renderStation(key);else if(key==='orders')renderOrders();else if(key==='receive')renderReceive();else renderPrev();}
+function setPrevFilter(val){state.prevFilter=val;renderPrev();}
+function setStatusFilter(key,fv){if(state.statusFilter[key]===fv)state.statusFilter[key]=null;else{state.statusFilter[key]=fv;if(fv)state.sort[key]={col:'status',dir:1};}renderStation(key);}
+function dismissReview(key,id){var item=state[key].find(function(i){return i.id===id;});if(item)item.needsReview=false;renderStation(key);}
+function renderStation(key){var isS1=key==='s1';renderThead(key+'-thead',INV_COLS,key);var items=sortAndFilter(key,state[key]);var body=document.getElementById(key+'-body');var stripe=isS1?'#F5F9FE':'#F4FAF0';var stocked=0,low=0,order=0;state[key].forEach(function(i){var s=getStatus(i.avail,i.req);if(s==='stocked')stocked++;else if(s==='low')low++;else order++;});body.innerHTML=items.length?items.map(function(item,idx){var rowClass=item.needsReview?'needs-review':'';var bg=item.needsReview?'':(idx%2===0?stripe:'transparent');var bgStyle=item.needsReview?'':('background:'+bg);var descCell=item.needsReview?item.desc+'<span class="review-badge">Needs review</span><button class="review-dismiss-btn" onclick="dismissReview(\''+key+'\','+item.id+')" title="Mark as reviewed">Dismiss</button>':item.desc;var ci=item.lastCountedBy?'<span style="font-size:12px;font-weight:500;">'+item.lastCountedBy+'</span>':'<span style="color:var(--color-text-secondary);font-size:12px;">—</span>';var cd=item.lastCountedDate?'<span style="font-size:11px;color:var(--color-text-secondary);">'+fmtDate(item.lastCountedDate)+'</span>':'<span style="color:var(--color-text-secondary);font-size:11px;">—</span>';return'<tr class="'+rowClass+'"'+(bgStyle?' style="'+bgStyle+'"':'')+'><td>'+descCell+'</td><td style="color:var(--color-text-secondary);">'+item.ref+'</td><td><span class="pkg-badge">'+item.pkg+'</span></td><td>'+item.req+'</td><td><span style="font-weight:500;">'+item.avail+'</span></td><td>'+statusBadge(item.avail,item.req)+'</td><td>'+ci+'</td><td>'+cd+'</td><td><div class="action-cell"><button class="btn-edit-row" onclick="openEditItemModal(\''+key+'\','+item.id+')">Edit</button><button class="btn-inventory" onclick="openInvConfirm(\''+key+'\','+item.id+')">Inventory</button></div></td></tr>';}).join(''):'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--color-text-secondary);">No items match.</td></tr>';var cl=isS1?'stat-card-s1':'stat-card-s11';var ll=isS1?'stat-label-s1':'stat-label-s11';var sf=state.statusFilter[key];document.getElementById(key+'-stats').innerHTML='<div class="stat-card '+cl+(sf===null?' active-filter':'')+'" onclick="setStatusFilter(\''+key+'\',null)"><div class="stat-label '+ll+'">Total items</div><div class="stat-val">'+state[key].length+'</div><div class="stat-hint">click to filter</div></div>'+'<div class="stat-card '+cl+(sf==='stocked'?' active-filter':'')+'" onclick="setStatusFilter(\''+key+'\',\'stocked\')"><div class="stat-label '+ll+'">Stocked</div><div class="stat-val" style="color:#3B6D11">'+stocked+'</div><div class="stat-hint">click to filter</div></div>'+'<div class="stat-card '+cl+(sf==='low'?' active-filter':'')+'" onclick="setStatusFilter(\''+key+'\',\'low\')"><div class="stat-label '+ll+'">Low stock</div><div class="stat-val" style="color:#854F0B">'+low+'</div><div class="stat-hint">click to filter</div></div>'+'<div class="stat-card '+cl+(sf==='order'?' active-filter':'')+'" onclick="setStatusFilter(\''+key+'\',\'order\')"><div class="stat-label '+ll+'">Need order</div><div class="stat-val" style="color:#A32D2D">'+order+'</div><div class="stat-hint">click to filter</div></div>';var chipEl=document.getElementById(key+'-filter-chip');if(sf){var cc=isS1?'filter-chip-s1':'filter-chip-s11';var lbl=sf==='stocked'?'Stocked':sf==='low'?'Low stock':'Need order';chipEl.innerHTML='<span class="filter-chip '+cc+'">'+lbl+' <button class="filter-chip-clear" onclick="setStatusFilter(\''+key+'\',null)">×</button></span>';}else{chipEl.innerHTML='';}}
+function openInvConfirm(stKey,itemId){var item=state[stKey].find(function(i){return i.id===itemId;});if(!item)return;state.pendingSave={stKey:stKey,itemId:itemId};document.getElementById('inv-confirm-desc').textContent=item.desc+' ('+item.ref+')';var isS1=stKey==='s1';document.getElementById('inv-confirm-summary').innerHTML='<div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Station</span><span class="inv-confirm-summary-val">'+(isS1?'Station 1':'Station 11')+'</span></div><div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Qty required</span><span class="inv-confirm-summary-val">'+item.req+'</span></div><div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Current qty available</span><span class="inv-confirm-summary-val">'+item.avail+'</span></div>';var qtyInput=document.getElementById('inv-qty-avail');qtyInput.value=item.avail;qtyInput.classList.remove('input-error');updateInvQtyPreview();var sel=document.getElementById('inv-counter-select');sel.innerHTML='<option value="">— select —</option>'+getCounters().map(function(n){return'<option value="'+n+'">'+n+'</option>';}).join('');if(item.lastCountedBy)sel.value=item.lastCountedBy;document.getElementById('inv-date-input').value=today;document.getElementById('inv-confirm-modal').classList.add('open');}
+function updateInvQtyPreview(){var p=state.pendingSave;if(!p.stKey)return;var item=state[p.stKey].find(function(i){return i.id===p.itemId;});if(!item)return;var newVal=parseInt(document.getElementById('inv-qty-avail').value);var note=document.getElementById('inv-qty-note');if(isNaN(newVal)||newVal<0){note.textContent='';return;}if(newVal===item.avail){note.textContent='No change from current qty.';}else{var diff=newVal-item.avail;var oldS=getStatus(item.avail,item.req);var newS=getStatus(newVal,item.req);var statusMsg=oldS!==newS?(' — status will change from '+{stocked:'Stocked',low:'Low',order:'Order'}[oldS]+' to '+{stocked:'Stocked',low:'Low',order:'Order'}[newS]+'.'):'';note.innerHTML='<span style="color:'+(diff>0?'#3B6D11':'#A32D2D')+'">'+(diff>0?'+':'')+diff+' from current count.</span>'+statusMsg;}}
+function confirmInventory(){var newAvail=parseInt(document.getElementById('inv-qty-avail').value);var counter=document.getElementById('inv-counter-select').value;var dateVal=document.getElementById('inv-date-input').value;var qtyInput=document.getElementById('inv-qty-avail');if(isNaN(newAvail)||newAvail<0){qtyInput.classList.add('input-error');alert('Please enter a valid qty available.');return;}qtyInput.classList.remove('input-error');if(!counter){alert('Please select who inventoried this item.');return;}if(!dateVal){alert('Please select the inventory date.');return;}var p=state.pendingSave;var item=state[p.stKey].find(function(i){return i.id===p.itemId;});if(!item)return;item.avail=newAvail;item.lastCountedBy=counter;item.lastCountedDate=dateVal;if(item.needsReview)item.needsReview=false;closeModal('inv-confirm-modal');renderStation(p.stKey);checkAndCreateOrder(p.stKey,item);renderOrders();renderReceive();renderOrderStats();saveToBackend();}
+function openEditItemModal(stKey,itemId){var item=state[stKey].find(function(i){return i.id===itemId;});if(!item)return;state.editItem={stKey:stKey,itemId:itemId};var isS1=stKey==='s1';var banner=document.getElementById('edit-item-banner');banner.className='edit-item-banner '+(isS1?'edit-item-banner-s1':'edit-item-banner-s11');document.getElementById('edit-item-banner-text').textContent=(isS1?'Station 1':'Station 11')+' — '+item.desc;document.getElementById('edit-item-banner-text').className='edit-item-banner-text '+(isS1?'edit-item-banner-text-s1':'edit-item-banner-text-s11');document.getElementById('edit-item-save-btn').style.background=isS1?'#185FA5':'#3B6D11';document.getElementById('edit-item-save-btn').style.borderColor=isS1?'#185FA5':'#3B6D11';document.getElementById('ei-desc').value=item.desc;document.getElementById('ei-ref').value=item.ref;document.getElementById('ei-pkg').value=item.pkg;document.getElementById('ei-req').value=item.req;document.getElementById('edit-change-preview').classList.remove('visible');document.getElementById('edit-change-rows').innerHTML='';document.getElementById('edit-item-modal').classList.add('open');}
+function updateEditPreview(){var p=state.editItem;var item=state[p.stKey].find(function(i){return i.id===p.itemId;});if(!item)return;var newDesc=document.getElementById('ei-desc').value.trim();var newRef=document.getElementById('ei-ref').value.trim();var newPkg=document.getElementById('ei-pkg').value;var newReq=parseInt(document.getElementById('ei-req').value)||0;var changes=[];if(newDesc&&newDesc!==item.desc)changes.push({field:'Description',old:item.desc,nw:newDesc});if(newRef&&newRef!==item.ref)changes.push({field:'Ref #',old:item.ref,nw:newRef});if(newPkg!==item.pkg)changes.push({field:'Package',old:item.pkg,nw:newPkg});if(newReq&&newReq!==item.req)changes.push({field:'Qty required',old:String(item.req),nw:String(newReq)});var preview=document.getElementById('edit-change-preview');var rows=document.getElementById('edit-change-rows');if(changes.length===0){preview.classList.remove('visible');return;}preview.classList.add('visible');rows.innerHTML=changes.map(function(c){return'<div class="change-row"><span class="change-field">'+c.field+'</span><span class="change-vals"><span class="change-old">'+c.old+'</span><span class="change-arrow">→</span><span class="change-new">'+c.nw+'</span></span></div>';}).join('');}
+function saveEditItem(){var p=state.editItem;var item=state[p.stKey].find(function(i){return i.id===p.itemId;});if(!item)return;var newDesc=document.getElementById('ei-desc').value.trim();var newRef=document.getElementById('ei-ref').value.trim();var newPkg=document.getElementById('ei-pkg').value;var newReq=parseInt(document.getElementById('ei-req').value)||0;if(!newDesc||!newRef||!newReq){alert('Please fill in description, reference number, and qty required.');return;}item.desc=newDesc;item.ref=newRef;item.pkg=newPkg;item.req=newReq;state.pendingOrders.forEach(function(o){if(o.itemId===item.id){o.desc=newDesc;o.pkg=newPkg;o.qtyNeeded=Math.max(0,newReq-item.avail);}});state.awaitingReceipt.forEach(function(o){if(o.itemId===item.id){o.desc=newDesc;o.pkg=newPkg;}});closeModal('edit-item-modal');renderStation(p.stKey);checkAndCreateOrder(p.stKey,item);renderOrders();renderReceive();renderOrderStats();saveToBackend();}
+function checkAndCreateOrder(stKey,item){var s=getStatus(item.avail,item.req);var inPending=state.pendingOrders.find(function(o){return o.itemId===item.id;});var inAwait=state.awaitingReceipt.find(function(o){return o.itemId===item.id;});if(s==='order'&&!inPending&&!inAwait){state.pendingOrders.push({orderId:Date.now()+(Math.random()*1000|0),itemId:item.id,station:stKey,stationLabel:stKey==='s1'?'Station 1':'Station 11',desc:item.desc,pkg:item.pkg,qtyNeeded:item.req-item.avail});}else if(s!=='order'){state.pendingOrders=state.pendingOrders.filter(function(o){return o.itemId!==item.id;});}}
+function renderOrders(){renderThead('orders-thead',ORD_COLS,'orders');var body=document.getElementById('order-body');var orders=sortAndFilter('orders',state.pendingOrders);if(state.pendingOrders.length===0){body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--color-text-secondary);">No items need ordering right now.</td></tr>';return;}if(orders.length===0){body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--color-text-secondary);">No orders match filter.</td></tr>';return;}body.innerHTML=orders.map(function(o){var stB=o.station==='s1'?'<span class="badge-s1">Station 1</span>':'<span class="badge-s11">Station 11</span>';var rowBg=o.station==='s1'?'#F5F9FE':'#F4FAF0';return'<tr style="background:'+rowBg+'"><td style="font-weight:500;">'+o.desc+'</td><td>'+stB+'</td><td><span class="pkg-badge">'+o.pkg+'</span></td><td>'+o.qtyNeeded+'</td><td><button class="btn-place-order" onclick="openPlaceOrderModal('+o.orderId+')">Place order</button></td></tr>';}).join('');}
+function renderReceive(){renderThead('receive-thead',RCV_COLS,'receive');var body=document.getElementById('receive-body');var items=sortAndFilter('receive',state.awaitingReceipt);if(state.awaitingReceipt.length===0){body.innerHTML='<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--color-text-secondary);">No items awaiting receipt.</td></tr>';return;}if(items.length===0){body.innerHTML='<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--color-text-secondary);">No items match filter.</td></tr>';return;}body.innerHTML=items.map(function(o){var stB=o.station==='s1'?'<span class="badge-s1">Station 1</span>':'<span class="badge-s11">Station 11</span>';var rowBg=o.station==='s1'?'#F5F9FE':'#F4FAF0';var qtyCell='<strong>'+o.qtyOrdered+'</strong>';if(o.qtyOrdered!==o.qtyNeeded){var diff=o.qtyOrdered-o.qtyNeeded;var cls=diff<0?'qty-variance-less':'qty-variance-more';qtyCell+=' <span class="qty-variance '+cls+'">'+(diff>0?'+':'')+diff+'</span>';}var tracking=o.trackingNumber?'<span class="tracking-pill">'+o.trackingNumber+'</span>':'<span style="color:var(--color-text-secondary);font-size:12px;">—</span>';var amtCell='<span style="font-weight:500;color:#3B6D11;">'+fmtDollar(o.orderAmount)+'</span>';return'<tr style="background:'+rowBg+'"><td style="font-weight:500;">'+o.desc+'</td><td>'+stB+'</td><td><span class="pkg-badge">'+o.pkg+'</span></td><td class="locked-cell">'+qtyCell+'</td><td class="locked-cell">'+amtCell+'</td><td class="locked-cell"><strong>'+o.orderedBy+'</strong></td><td class="locked-cell" style="color:var(--color-text-secondary);font-size:12px;">'+fmtDate(o.dateOrdered)+'</td><td class="locked-cell">'+tracking+'</td><td><button class="btn-confirm-receipt" onclick="openConfirmReceiptModal('+o.orderId+')">Confirm receipt</button></td></tr>';}).join('');}
+function renderOrderStats(){var totalSpent=state.orderHistory.reduce(function(s,o){return s+(o.orderAmount||0);},0);document.getElementById('order-stats').innerHTML='<div class="stat-card stat-card-orders nc"><div class="stat-label stat-label-orders">Needs ordering</div><div class="stat-val" style="color:#A32D2D">'+state.pendingOrders.length+'</div></div>'+'<div class="stat-card stat-card-orders nc"><div class="stat-label stat-label-orders">Awaiting receipt</div><div class="stat-val" style="color:#854F0B">'+state.awaitingReceipt.length+'</div></div>'+'<div class="stat-card stat-card-orders nc"><div class="stat-label stat-label-orders">Completed orders</div><div class="stat-val">'+state.orderHistory.length+'</div></div>'+'<div class="stat-card stat-card-orders nc"><div class="stat-label stat-label-orders">Total spent</div><div class="stat-val" style="color:#3B6D11;font-size:16px;">'+fmtDollar(totalSpent)+'</div></div>';}
+function openPlaceOrderModal(orderId){var o=state.pendingOrders.find(function(o){return o.orderId===orderId;});if(!o)return;state.pendingPlaceOrder={orderId:orderId};document.getElementById('po-desc').textContent=o.desc+' — '+(o.station==='s1'?'Station 1':'Station 11');document.getElementById('po-summary').innerHTML='<div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Package</span><span class="inv-confirm-summary-val">'+o.pkg+'</span></div><div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Qty needed</span><span class="inv-confirm-summary-val" style="color:#A32D2D;">'+o.qtyNeeded+'</span></div>';var sel=document.getElementById('po-orderer');sel.innerHTML='<option value="">— select supervisor —</option>'+getOrderers().map(function(n){return'<option value="'+n+'">'+n+'</option>';}).join('');document.getElementById('po-date').value=today;var qtyIn=document.getElementById('po-qty-ordered');qtyIn.value=o.qtyNeeded;qtyIn.classList.remove('input-error');function updateNote(){var val=parseInt(qtyIn.value)||0;var note=document.getElementById('po-qty-note');if(!val){note.textContent='';return;}if(val===o.qtyNeeded){note.textContent='Matches qty needed exactly.';}else if(val<o.qtyNeeded){note.innerHTML='<span style="color:#854F0B;">Ordering '+Math.abs(val-o.qtyNeeded)+' fewer than needed.</span>';}else{note.innerHTML='<span style="color:#185FA5;">Ordering '+(val-o.qtyNeeded)+' more than needed.</span>';}}qtyIn.oninput=updateNote;updateNote();var dollarIn=document.getElementById('po-dollar-amount');dollarIn.value='';dollarIn.classList.remove('input-error');document.getElementById('po-tracking').value='';document.getElementById('place-order-modal').classList.add('open');}
+function confirmPlaceOrder(){var orderer=document.getElementById('po-orderer').value;var dateVal=document.getElementById('po-date').value;var qtyIn=document.getElementById('po-qty-ordered');var qtyOrdered=parseInt(qtyIn.value)||0;var dollarIn=document.getElementById('po-dollar-amount');var dollarVal=parseFloat(dollarIn.value);var tracking=document.getElementById('po-tracking').value.trim();if(!orderer){alert('Please select who is placing the order.');return;}if(!dateVal){alert('Please select the order date.');return;}if(!qtyOrdered||qtyOrdered<1){qtyIn.classList.add('input-error');alert('Qty ordered is required.');return;}qtyIn.classList.remove('input-error');if(isNaN(dollarVal)||dollarVal<0){dollarIn.classList.add('input-error');alert('Please enter a valid order amount.');return;}dollarIn.classList.remove('input-error');var id=state.pendingPlaceOrder.orderId;var o=state.pendingOrders.find(function(o){return o.orderId===id;});if(!o)return;state.awaitingReceipt.push(Object.assign({},o,{orderedBy:orderer,dateOrdered:dateVal,qtyOrdered:qtyOrdered,orderAmount:dollarVal,trackingNumber:tracking||'',receivedBy:'',dateReceived:''}));state.pendingOrders=state.pendingOrders.filter(function(x){return x.orderId!==id;});closeModal('place-order-modal');renderOrders();renderReceive();renderOrderStats();saveToBackend();}
+function openConfirmReceiptModal(orderId){var o=state.awaitingReceipt.find(function(o){return o.orderId===orderId;});if(!o)return;state.pendingReceipt={orderId:orderId};document.getElementById('cr-desc').textContent=o.desc+' — '+(o.station==='s1'?'Station 1':'Station 11');var variantNote='';if(o.qtyOrdered!==o.qtyNeeded){var diff=o.qtyOrdered-o.qtyNeeded;variantNote='<div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Variance</span><span class="inv-confirm-summary-val" style="color:'+(diff<0?'#854F0B':'#185FA5')+'">'+(diff>0?'+':'')+diff+'</span></div>';}var trackNote=o.trackingNumber?'<div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Tracking #</span><span class="inv-confirm-summary-val" style="color:#533BAB;">'+o.trackingNumber+'</span></div>':'';document.getElementById('cr-summary').innerHTML='<div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Ordered by</span><span class="inv-confirm-summary-val" style="color:#854F0B;">'+o.orderedBy+'</span></div><div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Date ordered</span><span class="inv-confirm-summary-val">'+fmtDate(o.dateOrdered)+'</span></div><div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Qty ordered</span><span class="inv-confirm-summary-val">'+o.qtyOrdered+'</span></div><div class="inv-confirm-summary-row"><span class="inv-confirm-summary-label">Order amount</span><span class="inv-confirm-summary-val" style="color:#3B6D11;">'+fmtDollar(o.orderAmount)+'</span></div>'+variantNote+trackNote;var sel=document.getElementById('cr-receiver');sel.innerHTML='<option value="">— select —</option>'+getReceivers().map(function(n){return'<option value="'+n+'">'+n+'</option>';}).join('');document.getElementById('cr-date').value=today;document.getElementById('confirm-receipt-modal').classList.add('open');}
+function executeConfirmReceipt(){var receiver=document.getElementById('cr-receiver').value;var dateVal=document.getElementById('cr-date').value;if(!receiver){alert('Please select who received the item.');return;}if(!dateVal){alert('Please select the receipt date.');return;}var id=state.pendingReceipt.orderId;var o=state.awaitingReceipt.find(function(o){return o.orderId===id;});if(!o)return;state.orderHistory.push(Object.assign({},o,{receivedBy:receiver,dateReceived:dateVal}));var item=state[o.station].find(function(i){return i.id===o.itemId;});if(item){item.avail=Math.min(item.avail+o.qtyOrdered,item.req*2);renderStation(o.station);checkAndCreateOrder(o.station,item);}state.awaitingReceipt=state.awaitingReceipt.filter(function(x){return x.orderId!==id;});closeModal('confirm-receipt-modal');renderReceive();renderOrders();renderOrderStats();renderPrev();saveToBackend();}
+function renderPrev(){renderThead('prev-thead',PREV_COLS,'prev');var body=document.getElementById('prev-body');var items=sortAndFilter('prev',state.orderHistory);if(state.orderHistory.length===0){body.innerHTML='<tr><td colspan="11" style="text-align:center;padding:28px;color:var(--color-text-secondary);">No completed orders yet.</td></tr>';return;}if(items.length===0){body.innerHTML='<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--color-text-secondary);">No records match filter.</td></tr>';return;}body.innerHTML=items.map(function(o,idx){var stB=o.station==='s1'?'<span class="badge-s1">Station 1</span>':'<span class="badge-s11">Station 11</span>';var rBg=o.station==='s1'?(idx%2===0?'#EEF5FC':'#F5F9FE'):(idx%2===0?'#EBF6EC':'#F4FAF0');var qtyOC='<strong>'+o.qtyOrdered+'</strong>';if(o.qtyOrdered!==o.qtyNeeded){var diff=o.qtyOrdered-o.qtyNeeded;var cls=diff<0?'qty-variance-less':'qty-variance-more';qtyOC+=' <span class="qty-variance '+cls+'">'+(diff>0?'+':'')+diff+'</span>';}var tracking=o.trackingNumber?'<span class="tracking-pill">'+o.trackingNumber+'</span>':'<span style="color:var(--color-text-secondary);font-size:12px;">—</span>';return'<tr style="background:'+rBg+'"><td style="font-weight:500;">'+o.desc+'</td><td>'+stB+'</td><td><span class="pkg-badge">'+o.pkg+'</span></td><td style="color:var(--color-text-secondary);">'+o.qtyNeeded+'</td><td>'+qtyOC+'</td><td style="color:#3B6D11;font-weight:500;">'+fmtDollar(o.orderAmount)+'</td><td><span style="font-weight:500;color:#854F0B;">'+o.orderedBy+'</span></td><td style="color:var(--color-text-secondary);">'+fmtDate(o.dateOrdered)+'</td><td>'+tracking+'</td><td><span style="font-weight:500;color:#3B6D11;">'+o.receivedBy+'</span></td><td style="color:var(--color-text-secondary);">'+fmtDate(o.dateReceived)+'</td></tr>';}).join('');var s1c=state.orderHistory.filter(function(o){return o.station==='s1';}).length;var s11c=state.orderHistory.filter(function(o){return o.station==='s11';}).length;var tq=state.orderHistory.reduce(function(s,o){return s+o.qtyOrdered;},0);var totalSpent=state.orderHistory.reduce(function(s,o){return s+(o.orderAmount||0);},0);document.getElementById('prev-stats').innerHTML='<div class="stat-card stat-card-prev nc"><div class="stat-label stat-label-prev">Total orders</div><div class="stat-val">'+state.orderHistory.length+'</div></div>'+'<div class="stat-card stat-card-prev nc"><div class="stat-label stat-label-prev">Station 1 orders</div><div class="stat-val" style="color:#185FA5">'+s1c+'</div></div>'+'<div class="stat-card stat-card-prev nc"><div class="stat-label stat-label-prev">Station 11 orders</div><div class="stat-val" style="color:#3B6D11">'+s11c+'</div></div>'+'<div class="stat-card stat-card-prev nc"><div class="stat-label stat-label-prev">Total qty ordered</div><div class="stat-val">'+tq+'</div></div>'+'<div class="stat-card stat-card-prev nc"><div class="stat-label stat-label-prev">Total spent</div><div class="stat-val" style="color:#3B6D11;font-size:16px;">'+fmtDollar(totalSpent)+'</div></div>';}
+function openAddModal(target){state.addTarget=target;var isS1=target==='s1';var opp=oppLabel(target);document.getElementById('add-modal-sub').textContent='Fill in the item details. You can optionally add it to '+opp+' as well for review.';var banner=document.getElementById('add-station-banner');banner.className='station-banner '+(isS1?'station-banner-s1':'station-banner-s11');document.getElementById('add-station-icon').textContent=isS1?'🔵':'🟢';document.getElementById('add-station-text').textContent='Adding to: '+(isS1?'Station 1':'Station 11');document.getElementById('add-station-text').className='station-banner-text '+(isS1?'station-banner-text-s1':'station-banner-text-s11');var cb=document.getElementById('add-cross-station');cb.checked=false;document.getElementById('cross-station-label-text').textContent='Also add to '+opp;document.getElementById('cross-station-preview').classList.remove('visible');document.getElementById('cross-station-box').className='cross-station-box';document.getElementById('add-save-btn').style.background=isS1?'#185FA5':'#3B6D11';document.getElementById('add-save-btn').style.borderColor=isS1?'#185FA5':'#3B6D11';['add-desc','add-ref','add-req','add-avail'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('add-pkg').value='Box';document.getElementById('add-modal').classList.add('open');}
+function toggleCrossStation(){var cb=document.getElementById('add-cross-station');var box=document.getElementById('cross-station-box');var preview=document.getElementById('cross-station-preview');var opp=oppLabel(state.addTarget);var isS1=state.addTarget==='s1';if(cb.checked){box.className='cross-station-box '+(isS1?'checked-s11':'checked-s1');preview.className='cross-station-preview visible';preview.innerHTML='<strong>⚠ Needs review row will appear in '+opp+'</strong><br>The item will be added with qty available set to 0 and highlighted in red.';}else{box.className='cross-station-box';preview.classList.remove('visible');}}
+function saveAddItem(){var desc=document.getElementById('add-desc').value.trim();var ref=document.getElementById('add-ref').value.trim();var pkg=document.getElementById('add-pkg').value;var req=parseInt(document.getElementById('add-req').value)||0;var avail=parseInt(document.getElementById('add-avail').value)||0;var crossStation=document.getElementById('add-cross-station').checked;if(!desc||!ref||!req){alert('Please fill in description, reference number, and qty required.');return;}var primaryItem={id:state.nextId++,desc:desc,ref:ref,pkg:pkg,req:req,avail:avail,lastCountedBy:'',lastCountedDate:'',needsReview:false};state[state.addTarget].push(primaryItem);checkAndCreateOrder(state.addTarget,primaryItem);renderStation(state.addTarget);renderOrders();renderOrderStats();if(crossStation){var opp=oppKey(state.addTarget);var crossItem={id:state.nextId++,desc:desc,ref:ref,pkg:pkg,req:req,avail:0,lastCountedBy:'',lastCountedDate:'',needsReview:true};state[opp].push(crossItem);checkAndCreateOrder(opp,crossItem);renderStation(opp);}closeModal('add-modal');saveToBackend();}
+function openUserModal(){document.getElementById('new-user-name').value='';document.getElementById('new-user-role').value='VST';renderUserList();document.getElementById('user-modal').classList.add('open');}
+function renderUserList(){var el=document.getElementById('user-list');if(state.users.length===0){el.innerHTML='<p style="font-size:13px;color:var(--color-text-secondary);">No users.</p>';return;}var supervisors=state.users.filter(function(u){return isSup(u.role);}).map(function(u){return u.name;});document.getElementById('role-note-text').innerHTML='<strong>Ordering:</strong> Shift & Field Supervisors only ('+(supervisors.length?supervisors.join(', '):'none assigned')+')<br><strong>Receiving & counting:</strong> All users';el.innerHTML=state.users.map(function(u,i){return'<div class="user-row"><span class="user-name">'+u.name+'</span><span style="flex-shrink:0;"><span class="role-badge '+roleClass(u.role)+'">'+u.role+'</span></span><div class="perm-pills"><span class="perm-pill'+(isSup(u.role)?' perm-pill-yes':'')+'">Order</span><span class="perm-pill perm-pill-yes">Receive</span><span class="perm-pill perm-pill-yes">Count</span></div><div class="user-actions"><button class="btn-edit-user" onclick="openEditModal('+i+')">Edit</button><button class="btn-danger" onclick="promptRemoveUser('+i+')">Remove</button></div></div>';}).join('');}
+function addUser(){var name=document.getElementById('new-user-name').value.trim();var role=document.getElementById('new-user-role').value;if(!name){alert('Please enter a name.');return;}if(state.users.find(function(u){return u.name.toLowerCase()===name.toLowerCase();})){alert('User already exists.');return;}state.users.push({name:name,role:role});document.getElementById('new-user-name').value='';renderUserList();renderOrders();renderReceive();renderStation('s1');renderStation('s11');saveToBackend();}
+function openEditModal(i){var u=state.users[i];state.pendingEdit={userIndex:i};document.getElementById('edit-avatar').textContent=initials(u.name);document.getElementById('edit-current-name').textContent=u.name;document.getElementById('edit-current-role-display').innerHTML='<span class="role-badge '+roleClass(u.role)+'">'+u.role+'</span>';var nameIn=document.getElementById('edit-name-input');var roleIn=document.getElementById('edit-role-input');nameIn.value=u.name;roleIn.value=u.role;document.getElementById('edit-role-change-preview').style.display='none';document.getElementById('edit-sup-warning').style.display='none';function upd(){var nr=roleIn.value;var prev=document.getElementById('edit-role-change-preview');var warn=document.getElementById('edit-sup-warning');if(nr!==u.role){prev.style.display='flex';prev.innerHTML='<span class="role-badge '+roleClass(u.role)+'">'+u.role+'</span><span style="color:var(--color-text-secondary);padding:0 6px;">→</span><span class="role-badge '+roleClass(nr)+'">'+nr+'</span>';}else{prev.style.display='none';}var ws=isSup(u.role);var ns=isSup(nr);if(ws&&!ns){var ot=state.users.filter(function(x,j){return j!==i&&isSup(x.role);});warn.style.display='block';warn.style.background='';warn.style.borderColor='';warn.style.color='';warn.textContent=ot.length===0?'Warning: removing the last supervisor.':u.name+' will be removed from ordering dropdown.';}else if(!ws&&ns){warn.style.display='block';warn.style.background='#EAF3DE';warn.style.borderColor='#97C459';warn.style.color='#3B6D11';warn.textContent=(nameIn.value.trim()||u.name)+' will be added to ordering dropdown.';}else{warn.style.display='none';}}nameIn.oninput=upd;roleIn.onchange=upd;document.getElementById('edit-modal').classList.add('open');}
+function saveEditUser(){var i=state.pendingEdit.userIndex;var u=state.users[i];var nn=document.getElementById('edit-name-input').value.trim();var nr=document.getElementById('edit-role-input').value;if(!nn){alert('Please enter a name.');return;}if(state.users.find(function(x,j){return j!==i&&x.name.toLowerCase()===nn.toLowerCase();})){alert('Another user has that name.');return;}var on=u.name;u.name=nn;u.role=nr;state.pendingOrders.forEach(function(o){if(o.orderedBy===on)o.orderedBy=nn;});state.awaitingReceipt.forEach(function(o){if(o.orderedBy===on)o.orderedBy=nn;if(o.receivedBy===on)o.receivedBy=nn;});['s1','s11'].forEach(function(k){state[k].forEach(function(item){if(item.lastCountedBy===on)item.lastCountedBy=nn;});});closeModal('edit-modal');renderUserList();renderOrders();renderReceive();renderStation('s1');renderStation('s11');saveToBackend();}
+function promptRemoveUser(i){var u=state.users[i];state.pendingRemove={userIndex:i};document.getElementById('remove-avatar').textContent=initials(u.name);document.getElementById('remove-name-display').textContent=u.name;document.getElementById('remove-role-display').textContent=u.role;document.getElementById('remove-warning-box').innerHTML=(isSup(u.role)?'This supervisor will be removed from the ordering dropdown.<br>':'')+'Removing '+u.name+' from all dropdowns.';var sups=getSupervisors().filter(function(s){return s.name!==u.name;});var fa=document.getElementById('remove-form-area');var cb=document.getElementById('remove-confirm-btn');if(sups.length===0){fa.innerHTML='<div class="no-sup-msg">No supervisors available to approve this removal.</div>';cb.disabled=true;cb.style.opacity='0.5';}else{fa.innerHTML='<div class="approval-grid"><div class="form-row"><label class="form-label">Approved by</label><select class="form-input" id="remove-approver-select"><option value="">— select —</option>'+sups.map(function(s){return'<option value="'+s.name+'">'+s.name+' ('+s.role+')</option>';}).join('')+'</select></div><div class="form-row"><label class="form-label">Approval date</label><input type="date" class="form-input" id="remove-approval-date" value="'+today+'" /></div></div>';cb.disabled=false;cb.style.opacity='1';}document.getElementById('remove-modal').classList.add('open');}
+function executeRemove(){var a=document.getElementById('remove-approver-select');var d=document.getElementById('remove-approval-date');if(!a||!a.value){alert('Please select an approving supervisor.');return;}if(!d||!d.value){alert('Please select the approval date.');return;}state.users.splice(state.pendingRemove.userIndex,1);closeModal('remove-modal');renderUserList();renderOrders();renderReceive();renderStation('s1');renderStation('s11');saveToBackend();}
+
+function showTab(id){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.className='tab';});
+  document.getElementById(id).classList.add('active');
+  var map={s1:'tab-s1',s11:'tab-s11',orders:'tab-orders',prev:'tab-prev',admin:'tab-admin'};
+  var cls={s1:'active-s1',s11:'active-s11',orders:'active-orders',prev:'active-prev',admin:'active-admin'};
+  document.getElementById(map[id]).classList.add(cls[id]);
+  if(id==='admin'){
+    if(!adminUnlocked){
+      // focus the password input when tab is opened
+      setTimeout(function(){document.getElementById('admin-pw-input').focus();},50);
+    } else {
+      renderAdmin();
+    }
+  }
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function init(){renderStation('s1');renderStation('s11');['s1','s11'].forEach(function(k){state[k].forEach(function(item){checkAndCreateOrder(k,item);});});renderOrders();renderReceive();renderOrderStats();renderPrev();}
+loadFromBackend();
+</script>
