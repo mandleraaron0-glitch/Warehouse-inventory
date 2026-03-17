@@ -723,3 +723,4 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 function init(){renderStation('s1');renderStation('s11');['s1','s11'].forEach(function(k){state[k].forEach(function(item){checkAndCreateOrder(k,item);});});renderOrders();renderReceive();renderOrderStats();renderPrev();}
 loadFromBackend();
 </script>
+ 
