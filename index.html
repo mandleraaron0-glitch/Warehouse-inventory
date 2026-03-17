@@ -499,21 +499,8 @@ function loadFromBackend() {
 function saveToBackend() {
   if (!SYNC_ENABLED) return;
   showSyncStatus('saving');
-  fetch(BACKEND_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'SAVE_ALL',
-      state: {
-        users: state.users,
-        s1: state.s1,
-        s11: state.s11,
-        pendingOrders: state.pendingOrders,
-        awaitingReceipt: state.awaitingReceipt,
-        orderHistory: state.orderHistory
-      }
-    })
-  })
+  var saveState = JSON.stringify({users:state.users,s1:state.s1,s11:state.s11,pendingOrders:state.pendingOrders,awaitingReceipt:state.awaitingReceipt,orderHistory:state.orderHistory});
+  fetch(BACKEND_URL + '?action=SAVE_ALL&state=' + encodeURIComponent(saveState))
   .then(function(r) { return r.json(); })
   .then(function(resp) {
     hideSyncStatus();
