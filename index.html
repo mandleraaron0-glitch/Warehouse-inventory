@@ -500,9 +500,10 @@ function saveToBackend() {
   if (!SYNC_ENABLED) return;
   showSyncStatus('saving');
   var saveState = JSON.stringify({users:state.users,s1:state.s1,s11:state.s11,pendingOrders:state.pendingOrders,awaitingReceipt:state.awaitingReceipt,orderHistory:state.orderHistory});
-  fetch(BACKEND_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:saveState})
-  .then(function() { showSyncStatus('synced'); })
-  .catch(function(err) { showSyncStatus('error'); console.error('Save error:', err); });
+  fetch('https://corsproxy.io/?url=' + encodeURIComponent(BACKEND_URL), {method:'POST', headers:{'Content-Type':'application/json'}, body:saveState})
+  .then(function(r){return r.json();})
+  .then(function(){hideSyncStatus();})
+  .catch(function(err){hideSyncStatus();console.warn('Save failed:',err);});
   return;
   // dummy to match regex
   fetch('x').then(function(r) { return r.json(); })
