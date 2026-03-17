@@ -310,7 +310,87 @@ html, body { background: #F3F4F6; }
   .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
   @media (max-width: 600px) { .admin-two-col { grid-template-columns: 1fr; } }
   .no-data-msg { font-size: 13px; color: var(--color-text-secondary); text-align: center; padding: 16px 0; }
-</style>
+
+  /* ── GAS CYLINDER TABLE ──────────────────────────── */
+  .gc-wrap{margin:0 0 20px;}
+  .gc-wrap .gc-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:8px;}
+  .gc-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .gc-tbl th,.gc-tbl td{border:0.5px solid var(--color-border-secondary);padding:8px 10px;text-align:center;}
+  .gc-th-type{background:var(--color-background-secondary);color:var(--color-text-secondary);font-weight:500;font-size:12px;text-align:left;min-width:80px;}
+  .gc-th-o2{background:#2D6A2D;color:#fff;font-weight:700;font-size:12px;letter-spacing:.07em;border-color:#2D6A2D;}
+  .gc-ts-o2{background:#3D8C3D;color:#fff;font-weight:500;font-size:12px;border-color:#2D6A2D;}
+  .gc-th-ma{background:#C8A000;color:#3D2800;font-weight:700;font-size:12px;letter-spacing:.07em;border-color:#A08000;}
+  .gc-ts-ma{background:#E8BC00;color:#3D2800;font-weight:500;font-size:12px;border-color:#A08000;}
+  .gc-th-act{background:var(--color-background-secondary);color:var(--color-text-secondary);font-weight:500;font-size:12px;min-width:150px;}
+  .gc-td-type{font-weight:500;color:var(--color-text-primary);text-align:left;background:var(--color-background-secondary);padding-left:12px;}
+  .gc-td-val{color:var(--color-text-primary);background:var(--color-background-primary);font-size:14px;font-weight:500;}
+  .gc-td-val.gc-dash{color:var(--color-text-secondary);font-weight:400;}
+  .gc-td-tot{font-weight:500;background:var(--color-background-secondary);color:var(--color-text-primary);}
+  .gc-totrow td{background:var(--color-background-secondary);}
+  .gc-td-act{vertical-align:middle;padding:8px 10px;text-align:left;}
+  .gc-sname{font-size:12px;font-weight:500;color:var(--color-text-primary);display:block;}
+  .gc-sdate{font-size:11px;color:var(--color-text-secondary);display:block;margin-bottom:3px;}
+  .gc-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;color:var(--color-text-primary);cursor:pointer;white-space:nowrap;}
+  .gc-btn:hover{background:var(--color-background-secondary);}
+  .gc-upd{font-size:11px;padding:3px 8px;margin-top:2px;}
+  /* Gas dialog */
+  #gc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;}
+  #gc-overlay.open{display:flex;}
+  #gc-dialog{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:14px;padding:28px;width:400px;max-width:95vw;box-sizing:border-box;}
+  #gc-dialog h3{font-size:16px;font-weight:500;margin:0 0 4px;color:var(--color-text-primary);}
+  #gc-dialog .gc-dsub{font-size:13px;color:var(--color-text-secondary);margin:0 0 18px;}
+  .gc-secbar{display:flex;align-items:center;border-radius:6px;padding:6px 10px;margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.07em;}
+  .gc-secbar.o2{background:#2D6A2D;color:#fff;}
+  .gc-secbar.ma{background:#E8BC00;color:#3D2800;}
+  .gc-numrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .gc-numrow label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:5px;font-weight:500;}
+  .gc-numrow input{width:100%;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);border-radius:6px;padding:9px 10px;font-size:15px;font-weight:500;text-align:center;box-sizing:border-box;}
+  .gc-numrow input:focus{outline:none;border-color:#2D6A2D;box-shadow:0 0 0 2px #C8E6C9;background:var(--color-background-primary);}
+  .gc-emprow{margin:4px 0 20px;}
+  .gc-emprow label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:5px;font-weight:500;}
+  .gc-emprow select{width:100%;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);border-radius:6px;padding:9px 10px;font-size:13px;box-sizing:border-box;}
+  .gc-dbtns{display:flex;gap:10px;}
+  .gc-dbtns button{flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);}
+  .gc-dbsave{background:#2D6A2D;color:#fff;border-color:#2D6A2D!important;}
+  .gc-dbsave:hover{background:#3D8C3D;}
+  .gc-dbcancel{background:var(--color-background-secondary);color:var(--color-text-primary);}
+  
+  /* ── GAS CYLINDER TABLE ──────────────────────────── */
+  .gc-wrap{margin:0 0 20px;}.gc-wrap .gc-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:8px;}
+  .gc-tbl{width:100%;border-collapse:collapse;font-size:13px;}.gc-tbl th,.gc-tbl td{border:0.5px solid var(--color-border-secondary);padding:8px 10px;text-align:center;}
+  .gc-th-type{background:var(--color-background-secondary);color:var(--color-text-secondary);font-weight:500;font-size:12px;text-align:left;min-width:80px;}
+  .gc-th-o2{background:#2D6A2D;color:#fff;font-weight:700;font-size:12px;letter-spacing:.07em;border-color:#2D6A2D;}
+  .gc-ts-o2{background:#3D8C3D;color:#fff;font-weight:500;font-size:12px;border-color:#2D6A2D;}
+  .gc-th-ma{background:#C8A000;color:#3D2800;font-weight:700;font-size:12px;letter-spacing:.07em;border-color:#A08000;}
+  .gc-ts-ma{background:#E8BC00;color:#3D2800;font-weight:500;font-size:12px;border-color:#A08000;}
+  .gc-th-act{background:var(--color-background-secondary);color:var(--color-text-secondary);font-weight:500;font-size:12px;min-width:150px;}
+  .gc-td-type{font-weight:500;color:var(--color-text-primary);text-align:left;background:var(--color-background-secondary);padding-left:12px;}
+  .gc-td-val{color:var(--color-text-primary);background:var(--color-background-primary);font-size:14px;font-weight:500;}
+  .gc-td-val.gc-dash{color:var(--color-text-secondary);font-weight:400;}
+  .gc-td-tot{font-weight:500;background:var(--color-background-secondary);color:var(--color-text-primary);}
+  .gc-totrow td{background:var(--color-background-secondary);}
+  .gc-td-act{vertical-align:middle;padding:8px 10px;text-align:left;}
+  .gc-sname{font-size:12px;font-weight:500;color:var(--color-text-primary);display:block;}
+  .gc-sdate{font-size:11px;color:var(--color-text-secondary);display:block;margin-bottom:3px;}
+  .gc-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;color:var(--color-text-primary);cursor:pointer;white-space:nowrap;}
+  .gc-btn:hover{background:var(--color-background-secondary);}.gc-upd{font-size:11px;padding:3px 8px;margin-top:2px;}
+  #gc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;}
+  #gc-overlay.open{display:flex;}
+  #gc-dialog{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:14px;padding:28px;width:400px;max-width:95vw;box-sizing:border-box;}
+  #gc-dialog h3{font-size:16px;font-weight:500;margin:0 0 4px;color:var(--color-text-primary);}
+  .gc-dsub{font-size:13px;color:var(--color-text-secondary);margin:0 0 18px;}
+  .gc-secbar{display:flex;align-items:center;border-radius:6px;padding:6px 10px;margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.07em;}
+  .gc-secbar.o2{background:#2D6A2D;color:#fff;}.gc-secbar.ma{background:#E8BC00;color:#3D2800;}
+  .gc-numrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .gc-numrow label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:5px;font-weight:500;}
+  .gc-numrow input{width:100%;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);border-radius:6px;padding:9px 10px;font-size:15px;font-weight:500;text-align:center;box-sizing:border-box;}
+  .gc-numrow input:focus{outline:none;border-color:#2D6A2D;box-shadow:0 0 0 2px #C8E6C9;background:var(--color-background-primary);}
+  .gc-emprow{margin:4px 0 20px;}.gc-emprow label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:5px;font-weight:500;}
+  .gc-emprow select{width:100%;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);border-radius:6px;padding:9px 10px;font-size:13px;box-sizing:border-box;}
+  .gc-dbtns{display:flex;gap:10px;}.gc-dbtns button{flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);}
+  .gc-dbsave{background:#2D6A2D;color:#fff;border-color:#2D6A2D!important;}.gc-dbsave:hover{background:#3D8C3D;}
+  .gc-dbcancel{background:var(--color-background-secondary);color:var(--color-text-primary);}
+  </style>
 
 <div class="app">
   <div class="tab-bar">
@@ -333,7 +413,65 @@ html, body { background: #F3F4F6; }
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s1">Station 1 📦 Inventory</span><span id="s1-filter-chip"></span></div>
         <button class="btn-add-item-s1" onclick="openAddModal('s1')"><span class="btn-add-plus">+</span> Add item</button>
       </div>
-      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s1',this.value)" /></div>
+      
+  <div class="gc-wrap" id="gc-wrap-s1">
+    <span class="gc-label">Cylinder inventory</span>
+    <table class="gc-tbl">
+      <thead>
+        <tr>
+          <th class="gc-th-type" rowspan="2">Tank type</th>
+          <th colspan="2" class="gc-th-o2">OXYGEN</th>
+          <th colspan="2" class="gc-th-ma">MEDICAL AIR</th>
+          <th class="gc-th-act" rowspan="2">Last inventoried</th>
+        </tr>
+        <tr>
+          <th class="gc-ts-o2">Empty</th><th class="gc-ts-o2">Full</th>
+          <th class="gc-ts-ma">Empty</th><th class="gc-ts-ma">Full</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="gc-td-type">K Tank</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-K-o2e">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-K-o2f">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-K-mae">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-K-maf">—</td>
+          <td class="gc-td-act">
+            <button class="gc-btn" id="gc-btn-s1-K" onclick="gcOpen('s1','K')">+ Inventory</button>
+            <div id="gc-stamp-s1-K" style="display:none">
+              <span class="gc-sname" id="gc-sn-s1-K"></span>
+              <span class="gc-sdate" id="gc-sd-s1-K"></span>
+              <button class="gc-btn gc-upd" onclick="gcOpen('s1','K')">Update</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="gc-td-type">M Tank</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-M-o2e">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-M-o2f">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-M-mae">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s1-M-maf">—</td>
+          <td class="gc-td-act">
+            <button class="gc-btn" id="gc-btn-s1-M" onclick="gcOpen('s1','M')">+ Inventory</button>
+            <div id="gc-stamp-s1-M" style="display:none">
+              <span class="gc-sname" id="gc-sn-s1-M"></span>
+              <span class="gc-sdate" id="gc-sd-s1-M"></span>
+              <button class="gc-btn gc-upd" onclick="gcOpen('s1','M')">Update</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="gc-totrow">
+          <td class="gc-td-type">Total</td>
+          <td class="gc-td-tot" id="gc-tot-s1-o2e">—</td>
+          <td class="gc-td-tot" id="gc-tot-s1-o2f">—</td>
+          <td class="gc-td-tot" id="gc-tot-s1-mae">—</td>
+          <td class="gc-td-tot" id="gc-tot-s1-maf">—</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+<div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s1',this.value)" /></div>
       <div class="table-wrap"><table><thead id="s1-thead"><tr style="background:#E6F1FB;"></tr></thead><tbody id="s1-body"></tbody></table></div>
     </div>
   </div>
@@ -358,7 +496,65 @@ html, body { background: #F3F4F6; }
       <div class="stage-header"><span class="table-title title-orders">Needs Ordering</span><span class="stage-pill stage-pill-order">Step 1 📦 Supervisor</span></div>
       <p class="section-sub" style="margin-bottom:10px;">Items below are low or out of stock. Click Place Order to confirm who is ordering and lock the record.</p>
       <div class="legend-row"><span class="badge-s1">Station 1</span><span class="badge-s11">Station 11</span></div>
-      <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter..." oninput="setSearch('orders',this.value)" /></div>
+      
+  <div class="gc-wrap" id="gc-wrap-s11">
+    <span class="gc-label">Cylinder inventory</span>
+    <table class="gc-tbl">
+      <thead>
+        <tr>
+          <th class="gc-th-type" rowspan="2">Tank type</th>
+          <th colspan="2" class="gc-th-o2">OXYGEN</th>
+          <th colspan="2" class="gc-th-ma">MEDICAL AIR</th>
+          <th class="gc-th-act" rowspan="2">Last inventoried</th>
+        </tr>
+        <tr>
+          <th class="gc-ts-o2">Empty</th><th class="gc-ts-o2">Full</th>
+          <th class="gc-ts-ma">Empty</th><th class="gc-ts-ma">Full</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="gc-td-type">K Tank</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-K-o2e">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-K-o2f">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-K-mae">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-K-maf">—</td>
+          <td class="gc-td-act">
+            <button class="gc-btn" id="gc-btn-s11-K" onclick="gcOpen('s11','K')">+ Inventory</button>
+            <div id="gc-stamp-s11-K" style="display:none">
+              <span class="gc-sname" id="gc-sn-s11-K"></span>
+              <span class="gc-sdate" id="gc-sd-s11-K"></span>
+              <button class="gc-btn gc-upd" onclick="gcOpen('s11','K')">Update</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="gc-td-type">M Tank</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-M-o2e">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-M-o2f">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-M-mae">—</td>
+          <td class="gc-td-val gc-dash" id="gc-s11-M-maf">—</td>
+          <td class="gc-td-act">
+            <button class="gc-btn" id="gc-btn-s11-M" onclick="gcOpen('s11','M')">+ Inventory</button>
+            <div id="gc-stamp-s11-M" style="display:none">
+              <span class="gc-sname" id="gc-sn-s11-M"></span>
+              <span class="gc-sdate" id="gc-sd-s11-M"></span>
+              <button class="gc-btn gc-upd" onclick="gcOpen('s11','M')">Update</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="gc-totrow">
+          <td class="gc-td-type">Total</td>
+          <td class="gc-td-tot" id="gc-tot-s11-o2e">—</td>
+          <td class="gc-td-tot" id="gc-tot-s11-o2f">—</td>
+          <td class="gc-td-tot" id="gc-tot-s11-mae">—</td>
+          <td class="gc-td-tot" id="gc-tot-s11-maf">—</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+<div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter..." oninput="setSearch('orders',this.value)" /></div>
       <div class="table-wrap"><table><thead id="orders-thead"><tr></tr></thead><tbody id="order-body"></tbody></table></div>
     </div>
     <div class="card card-receive">
@@ -483,7 +679,7 @@ var SUPABASE_URL = 'https://usehekvxpllqqgoueyug.supabase.co';
         if (d.awaitingReceipt) state.awaitingReceipt = d.awaitingReceipt;
         if (d.orderHistory)    state.orderHistory    = d.orderHistory;
       }
-      hideSyncStatus(); renderStation('s1'); renderStation('s11'); renderOrders(); renderPrev();
+      hideSyncStatus(); renderStation('s1'); renderStation('s11'); renderOrders(); renderPrev(); if(rows[0].data.gas_s1) gcLoadData('s1',rows[0].data.gas_s1); if(rows[0].data.gas_s11) gcLoadData('s11',rows[0].data.gas_s11);
     }).catch(function(){ hideSyncStatus(); });
   }
 
@@ -720,5 +916,102 @@ function showTab(id){
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function init(){renderStation('s1');renderStation('s11');['s1','s11'].forEach(function(k){state[k].forEach(function(item){checkAndCreateOrder(k,item);});});renderOrders();renderReceive();renderOrderStats();renderPrev();}
 loadFromBackend();
-</script>
+
+  /* ── GAS CYLINDER LOGIC ──────────────────────────── */
+  var _gcSid='',_gcRow='';
+  function gcOpen(sid,row){
+    _gcSid=sid;_gcRow=row;
+    document.getElementById('gc-dlg-title').textContent='Inventory — '+row+' Tank';
+    ['o2e','o2f','mae','maf'].forEach(function(c){
+      var v=document.getElementById('gc-'+sid+'-'+row+'-'+c).textContent;
+      document.getElementById('gc-m-'+c).value=(v==='—')?'':v;
+    });
+    var sel=document.getElementById('gc-m-emp');
+    sel.innerHTML='<option value="">Select employee...</option>';
+    sel.style.borderColor='';
+    (state.users||[]).forEach(function(u){
+      var o=document.createElement('option');
+      o.value=u.name||u;o.textContent=u.name||u;sel.appendChild(o);
+    });
+    document.getElementById('gc-overlay').classList.add('open');
+  }
+  function gcClose(){document.getElementById('gc-overlay').classList.remove('open');}
+  function gcSave(){
+    var emp=document.getElementById('gc-m-emp').value;
+    if(!emp){document.getElementById('gc-m-emp').style.borderColor='#E24B4A';return;}
+    var sid=_gcSid,row=_gcRow;
+    ['o2e','o2f','mae','maf'].forEach(function(c){
+      var v=document.getElementById('gc-m-'+c).value;
+      var cell=document.getElementById('gc-'+sid+'-'+row+'-'+c);
+      cell.textContent=(v==='')?'—':v;
+      cell.classList.toggle('gc-dash',v==='');
+    });
+    var d=new Date();
+    var fmt=(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
+    document.getElementById('gc-sn-'+sid+'-'+row).textContent=emp;
+    document.getElementById('gc-sd-'+sid+'-'+row).textContent=fmt;
+    document.getElementById('gc-stamp-'+sid+'-'+row).style.display='block';
+    document.getElementById('gc-btn-'+sid+'-'+row).style.display='none';
+    gcTotals(sid);gcPersist(sid);gcClose();
+  }
+  function gcTotals(sid){
+    ['o2e','o2f','mae','maf'].forEach(function(c){
+      var sum=0,any=false;
+      ['K','M'].forEach(function(r){
+        var v=document.getElementById('gc-'+sid+'-'+r+'-'+c).textContent;
+        if(v!=='—'){sum+=parseInt(v)||0;any=true;}
+      });
+      document.getElementById('gc-tot-'+sid+'-'+c).textContent=any?sum:'—';
+    });
+  }
+  function gcPersist(sid){
+    if(!SYNC_ENABLED)return;
+    var d={};
+    ['K','M'].forEach(function(r){
+      ['o2e','o2f','mae','maf'].forEach(function(c){
+        var v=document.getElementById('gc-'+sid+'-'+r+'-'+c).textContent;
+        d[r+'_'+c]=(v==='—')?null:parseInt(v);
+      });
+      var sn=document.getElementById('gc-sn-'+sid+'-'+r).textContent;
+      var sd=document.getElementById('gc-sd-'+sid+'-'+r).textContent;
+      if(sn)d['stamp_'+r]={name:sn,date:sd};
+    });
+    window._gcData=window._gcData||{};window._gcData[sid]=d;
+    var merged=Object.assign({},{users:state.users,s1:state.s1,s11:state.s11,
+      pendingOrders:state.pendingOrders,awaitingReceipt:state.awaitingReceipt,
+      orderHistory:state.orderHistory,
+      gas_s1:(window._gcData.s1||{}),gas_s11:(window._gcData.s11||{})});
+    fetch(SUPABASE_URL+'/rest/v1/warehouse_state?id=eq.main',{
+      method:'PATCH',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,
+               'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({data:merged,updated_at:new Date().toISOString()})
+    }).catch(function(e){console.warn('gc save err',e);});
+  }
+  function gcLoadData(sid,data){
+    if(!data)return;
+    window._gcData=window._gcData||{};window._gcData[sid]=data;
+    ['K','M'].forEach(function(r){
+      ['o2e','o2f','mae','maf'].forEach(function(c){
+        var v=data[r+'_'+c];
+        var cell=document.getElementById('gc-'+sid+'-'+r+'-'+c);
+        if(!cell)return;
+        cell.textContent=(v!==null&&v!==undefined)?String(v):'—';
+        cell.classList.toggle('gc-dash',v===null||v===undefined);
+      });
+      if(data['stamp_'+r]){
+        var s=data['stamp_'+r];
+        var sne=document.getElementById('gc-sn-'+sid+'-'+r);
+        var sde=document.getElementById('gc-sd-'+sid+'-'+r);
+        var stmp=document.getElementById('gc-stamp-'+sid+'-'+r);
+        var btn=document.getElementById('gc-btn-'+sid+'-'+r);
+        if(sne)sne.textContent=s.name||'';
+        if(sde)sde.textContent=s.date||'';
+        if(stmp)stmp.style.display='block';
+        if(btn)btn.style.display='none';
+      }
+    });
+    gcTotals(sid);
+  }
+  </script>
  
