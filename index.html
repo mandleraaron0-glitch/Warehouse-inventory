@@ -476,7 +476,7 @@ var SUPABASE_URL = 'https://usehekvxpllqqgoueyug.supabase.co';
         if (d.awaitingReceipt) state.awaitingReceipt = d.awaitingReceipt;
         if (d.orderHistory)    state.orderHistory    = d.orderHistory;
       }
-      hideSyncStatus(); renderS1(); renderS11(); renderOrders(); renderPrev();
+      hideSyncStatus(); renderStation('s1'); renderStation('s11'); renderOrders(); renderPrev();
     }).catch(function(){ hideSyncStatus(); });
   }
 
