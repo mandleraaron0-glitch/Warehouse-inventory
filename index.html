@@ -933,9 +933,9 @@ loadFromBackend();
       var o=document.createElement('option');
       o.value=u.name||u;o.textContent=u.name||u;sel.appendChild(o);
     });
-    document.getElementById('gc-overlay').classList.add('open');
+    var ov=document.getElementById('gc-overlay'); ov.style.display='flex'; ov.style.alignItems='center'; ov.style.justifyContent='center';
   }
-  function gcClose(){document.getElementById('gc-overlay').classList.remove('open');}
+  function gcClose(){document.getElementById('gc-overlay').style.display='none';}
   function gcSave(){
     var emp=document.getElementById('gc-m-emp').value;
     if(!emp){document.getElementById('gc-m-emp').style.borderColor='#E24B4A';return;}
