@@ -311,16 +311,7 @@ html, body { background: #F3F4F6; }
   .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
   @media (max-width: 600px) { .admin-two-col { grid-template-columns: 1fr; } }
   .no-data-msg { font-size: 13px; color: var(--color-text-secondary); text-align: center; padding: 16px 0; }
-</style>
-
-<div class="app">
-  <div class="tab-bar">
-    <div class="tab-group">
-      <button class="tab active-s1" id="tab-s1" onclick="showTab('s1')">Station 1</button>
-      <button class="tab" id="tab-s11" onclick="showTab('s11')">Station 11</button>
-      <button class="tab" id="tab-orders" onclick="showTab('orders')">Order Sheet</button>
-      <button class="tab" id="tab-prev" onclick="showTab('prev')">Previously Ordered</button>
-      <button class="tab" id="tab-admin" onclick="showTab('admin')">ð Admin</button>
+</style>🔒 Admin</button>
     </div>
     <button class="btn-manage-users" onclick="openUserModal()">Manage users</button>
     <span id="sync-badge" style="display:none; align-items:center; gap:4px; padding:3px 8px; border-radius:8px; font-size:11px; font-weight:500; margin-bottom:1px;"></span>
@@ -331,7 +322,7 @@ html, body { background: #F3F4F6; }
     <div class="stats-row" id="s1-stats"></div>
     <div class="card card-s1">
       <div class="table-header">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s1">Station 1 â Inventory</span><span id="s1-filter-chip"></span></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s1">Station 1 📦 Inventory</span><span id="s1-filter-chip"></span></div>
         <button class="btn-add-item-s1" onclick="openAddModal('s1')"><span class="btn-add-plus">+</span> Add item</button>
       </div>
       <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s1',this.value)" /></div>
@@ -344,7 +335,7 @@ html, body { background: #F3F4F6; }
     <div class="stats-row" id="s11-stats"></div>
     <div class="card card-s11">
       <div class="table-header">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s11">Station 11 â Inventory</span><span id="s11-filter-chip"></span></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s11">Station 11 📦 Inventory</span><span id="s11-filter-chip"></span></div>
         <button class="btn-add-item-s11" onclick="openAddModal('s11')"><span class="btn-add-plus">+</span> Add item</button>
       </div>
       <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s11',this.value)" /></div>
