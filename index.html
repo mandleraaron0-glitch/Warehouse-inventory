@@ -134,7 +134,7 @@ html, body { background: #F3F4F6; }
   .arr-dn { border-top: 4px solid currentColor; }
   th.sort-asc .arr-up { opacity: 1; }
   th.sort-desc .arr-dn { opacity: 1; }
-  .search-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  .search-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
   .search-input { flex: 1; min-width: 140px; max-width: 260px; }
   .search-label { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
   .legend-row { display: flex; gap: 12px; margin-bottom: 10px; font-size: 12px; align-items: center; flex-wrap: wrap; }
@@ -401,6 +401,8 @@ html, body { background: #F3F4F6; }
       <button class="tab" id="tab-prev" onclick="showTab('prev')">Previously Ordered</button>
       <button class="tab" id="tab-admin" onclick="showTab('admin')">🔒 Admin</button>
     </div>
+      <button class="btn-add-item-s11" onclick="openAddModal('s11')"><span class="btn-add-plus">+</span> Add item</button>
+      <button class="btn-add-item-s1" onclick="openAddModal('s1')"><span class="btn-add-plus">+</span> Add item</button>
     <button class="btn-manage-users" onclick="openUserModal()">Manage users</button>
     <span id="sync-badge" style="display:none; align-items:center; gap:4px; padding:3px 8px; border-radius:8px; font-size:11px; font-weight:500; margin-bottom:1px;"></span>
   </div>
@@ -411,7 +413,7 @@ html, body { background: #F3F4F6; }
     <div class="card card-s1">
       <div class="table-header">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s1">Station 1 📦 Inventory</span><span id="s1-filter-chip"></span></div>
-        <button class="btn-add-item-s1" onclick="openAddModal('s1')"><span class="btn-add-plus">+</span> Add item</button>
+        
       </div>
       
   <div class="gc-wrap" id="gc-wrap-s1">
@@ -482,7 +484,7 @@ html, body { background: #F3F4F6; }
     <div class="card card-s11">
       <div class="table-header">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="table-title title-s11">Station 11 📦 Inventory</span><span id="s11-filter-chip"></span></div>
-        <button class="btn-add-item-s11" onclick="openAddModal('s11')"><span class="btn-add-plus">+</span> Add item</button>
+        
       </div>
       <div class="search-bar"><span class="search-label">Search:</span><input class="search-input" placeholder="Filter items..." oninput="setSearch('s11',this.value)" /></div>
       <div class="table-wrap"><table><thead id="s11-thead"><tr style="background:#EAF3DE;"></tr></thead><tbody id="s11-body"></tbody></table></div>
